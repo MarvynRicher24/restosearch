@@ -1,42 +1,51 @@
 <template>
   <div class="container details">
-    <NuxtLink to="/" class="back">← Retour</NuxtLink>
+    <button type="button" class="back" @click="goBack">← Retour</button>
 
     <div v-if="!dish" class="loading">Plat introuvable.</div>
 
     <div v-else class="dish-detail">
-      <div class="top-dish">
+      <div v-if="restaurant" class="resto-chip">
+        <span>Restaurant:</span>
+        <NuxtLink :to="`/restaurant/${restaurant.id}`" class="resto-link">{{
+          restaurant.name
+        }}</NuxtLink>
+      </div>
+
+      <div class="top">
         <img :src="dish.image" :alt="dish.name" class="hero-img" />
         <div class="info">
           <h1>{{ dish.name }}</h1>
           <div class="d-price big">{{ formatPrice(dish.price) }}</div>
-          <p class="muted" v-if="restaurant">
-            Servi par
-            <NuxtLink :to="`/restaurant/${restaurant.id}`">{{
-              restaurant.name
-            }}</NuxtLink>
-          </p>
           <p class="lead" v-if="restaurant">{{ restaurant.short }}</p>
 
           <div class="actions">
-            <button @click="addToCart" class="btn-primary">
+            <button @click="addToCart" class="btn btn-primary">
               Ajouter au panier
             </button>
           </div>
         </div>
       </div>
 
-      <!-- section description / suggestions -->
-      <section class="more">
-        <h2>Plus de plats chez {{ restaurant?.name ?? "ce restaurant" }}</h2>
+      <section class="dishes">
+        <h2>Autres plats de {{ restaurant?.name ?? "ce restaurant" }}</h2>
         <div class="dish-grid">
-          <div v-for="d in more" :key="d.id" class="dish small">
-            <img :src="d.image" :alt="d.name" />
-            <div class="d-body">
-              <div class="d-title">{{ d.name }}</div>
+          <article v-for="d in more" :key="d.id" class="dish-card">
+            <img class="dish-img" :src="d.image" :alt="d.name" />
+            <div class="dish-content">
+              <h3 class="d-title">{{ d.name }}</h3>
               <div class="d-price">{{ formatPrice(d.price) }}</div>
             </div>
-          </div>
+            <div class="dish-actions">
+              <NuxtLink
+                :to="`/dish/${d.id}`"
+                class="btn btn-primary"
+                :aria-label="`Voir le plat ${d.name}`"
+              >
+                Voir le plat
+              </NuxtLink>
+            </div>
+          </article>
         </div>
       </section>
     </div>
@@ -58,6 +67,7 @@ type Rest = {
 type Dish = { id: string; name: string; price: number; image: string };
 
 const route = useRoute();
+const router = useRouter();
 const id = String(route.params.id || "");
 
 const dish = ref<Dish | null>(null);
@@ -113,6 +123,14 @@ function addToCart() {
     alert("Ajouter au panier ✓");
   } catch (e) {
     console.warn(e);
+  }
+}
+
+function goBack() {
+  if (process.client && window.history.length > 1) {
+    router.back();
+  } else {
+    router.push("/");
   }
 }
 </script>

@@ -1,6 +1,6 @@
 <template>
   <div class="container details">
-    <NuxtLink to="/" class="back">← Retour</NuxtLink>
+    <button type="button" class="back" @click="goBack">← Retour</button>
 
     <div v-if="!restaurant" class="loading">Restaurant introuvable.</div>
     <div v-else>
@@ -59,6 +59,7 @@ type Rest = {
 type Dish = { id: string; name: string; price: number; image: string };
 
 const route = useRoute();
+const router = useRouter();
 const id = String(route.params.id || "");
 
 const restaurant = ref<Rest | null>(null);
@@ -78,6 +79,14 @@ const map = (dishesMap.value || {}) as Record<string, Dish[]>;
 dishes.value = map[id] ?? [];
 function formatPrice(p: any) {
   return typeof p === "number" ? p.toFixed(2) + " €" : p;
+}
+
+function goBack() {
+  if (process.client && window.history.length > 1) {
+    router.back();
+  } else {
+    router.push("/");
+  }
 }
 </script>
 
