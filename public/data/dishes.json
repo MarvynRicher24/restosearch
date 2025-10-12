@@ -1,0 +1,162 @@
+{
+    "r1": [
+        {
+            "id": "r1-d1",
+            "name": "Tartare de saumon",
+            "price": 12.5,
+            "image": "https://picsum.photos/id/292/400/300"
+        },
+        {
+            "id": "r1-d2",
+            "name": "Poulet fermier rôti",
+            "price": 18.0,
+            "image": "https://picsum.photos/id/1081/400/300"
+        },
+        {
+            "id": "r1-d3",
+            "name": "Risotto aux champignons",
+            "price": 14.0,
+            "image": "https://picsum.photos/id/1083/400/300"
+        }
+    ],
+    "r2": [
+        {
+            "id": "r2-d1",
+            "name": "Taco al pastor",
+            "price": 4.5,
+            "image": "https://picsum.photos/id/237/400/300"
+        },
+        {
+            "id": "r2-d2",
+            "name": "Quesadilla au fromage",
+            "price": 7.0,
+            "image": "https://picsum.photos/id/292/400/300"
+        },
+        {
+            "id": "r2-d3",
+            "name": "Guacamole maison",
+            "price": 5.5,
+            "image": "https://picsum.photos/id/1056/400/300"
+        }
+    ],
+    "r3": [
+        {
+            "id": "r3-d1",
+            "name": "Nigiri saumon (2 pcs)",
+            "price": 6.5,
+            "image": "https://picsum.photos/id/292/400/300"
+        },
+        {
+            "id": "r3-d2",
+            "name": "Maki avocat",
+            "price": 5.0,
+            "image": "https://picsum.photos/id/1027/400/300"
+        },
+        {
+            "id": "r3-d3",
+            "name": "Assiette sashimi",
+            "price": 16.0,
+            "image": "https://picsum.photos/id/1044/400/300"
+        }
+    ],
+    "r4": [
+        {
+            "id": "r4-d1",
+            "name": "Pâtes carbonara",
+            "price": 13.0,
+            "image": "https://picsum.photos/id/1082/400/300"
+        },
+        {
+            "id": "r4-d2",
+            "name": "Pizza Margherita",
+            "price": 11.0,
+            "image": "https://picsum.photos/id/1050/400/300"
+        },
+        {
+            "id": "r4-d3",
+            "name": "Tiramisu maison",
+            "price": 6.0,
+            "image": "https://picsum.photos/id/1018/400/300"
+        }
+    ],
+    "r5": [
+        {
+            "id": "r5-d1",
+            "name": "Bowl quinoa et légumes",
+            "price": 9.5,
+            "image": "https://picsum.photos/id/1060/400/300"
+        },
+        {
+            "id": "r5-d2",
+            "name": "Burger végétal",
+            "price": 10.5,
+            "image": "https://picsum.photos/id/1003/400/300"
+        },
+        {
+            "id": "r5-d3",
+            "name": "Smoothie vert",
+            "price": 4.5,
+            "image": "https://picsum.photos/id/1011/400/300"
+        }
+    ],
+    "r6": [
+        {
+            "id": "r6-d1",
+            "name": "Entrecôte 300g",
+            "price": 24.0,
+            "image": "https://picsum.photos/id/1006/400/300"
+        },
+        {
+            "id": "r6-d2",
+            "name": "Frites maison",
+            "price": 4.0,
+            "image": "https://picsum.photos/id/1084/400/300"
+        },
+        {
+            "id": "r6-d3",
+            "name": "Sauce béarnaise",
+            "price": 2.5,
+            "image": "https://picsum.photos/id/1042/400/300"
+        }
+    ],
+    "r7": [
+        {
+            "id": "r7-d1",
+            "name": "Chicken tikka masala",
+            "price": 14.0,
+            "image": "https://picsum.photos/id/1074/400/300"
+        },
+        {
+            "id": "r7-d2",
+            "name": "Naan au fromage",
+            "price": 3.5,
+            "image": "https://picsum.photos/id/1019/400/300"
+        },
+        {
+            "id": "r7-d3",
+            "name": "Lassi mangue",
+            "price": 3.0,
+            "image": "https://picsum.photos/id/1066/400/300"
+        }
+    ],
+    "r8": [
+        {
+            "id": "r8-d1",
+            "name": "Croissant au beurre",
+            "price": 2.3,
+            "image": "https://picsum.photos/id/1002/400/300"
+        },
+        {
+            "id": "r8-d2",
+            "name": "Tartelette aux fruits",
+            "price": 4.8,
+            "image": "https://picsum.photos/id/1011/400/300"
+        },
+        {
+            "id": "r8-d3",
+            "name": "Pain au chocolat",
+            "price": 2.5,
+            "image": "https://picsum.photos/id/1004/400/300"
+        }
+    ]
+}

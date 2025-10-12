@@ -1,0 +1,38 @@
+[
+    {
+        "id": "r5",
+        "name": "Veggie Corner",
+        "image": "https://picsum.photos/id/1062/800/600",
+        "location": "Lille, Rue de la Monnaie",
+        "cuisine": "Végétarienne",
+        "rating": 4.4,
+        "short": "Plats 100% végétarien, saine et gourmande."
+    },
+    {
+        "id": "r6",
+        "name": "Grill Master",
+        "image": "https://picsum.photos/id/1035/800/600",
+        "location": "Bordeaux, Quai des Chartrons",
+        "cuisine": "Steakhouse",
+        "rating": 4.3,
+        "short": "Viandes maturées et grillades au feu de bois."
+    },
+    {
+        "id": "r7",
+        "name": "Curry House",
+        "image": "https://picsum.photos/id/1059/800/600",
+        "location": "Strasbourg, Petite France",
+        "cuisine": "Indienne",
+        "rating": 4.6,
+        "short": "Currys parfumés et pain naan fait maison."
+    },
+    {
+        "id": "r8",
+        "name": "Boulangerie du Coin",
+        "image": "https://picsum.photos/id/1005/800/600",
+        "location": "Rouen, Rue du Gros-Horloge",
+        "cuisine": "Boulangerie",
+        "rating": 4.9,
+        "short": "Viennoiseries, pains et petites salades."
+    }
+]
