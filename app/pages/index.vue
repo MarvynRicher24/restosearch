@@ -3,7 +3,7 @@
     <section class="hero container">
       <div class="hero-inner">
         <h1 class="logo"><span>resto</span><strong>search</strong></h1>
-        <p class="lead">Trouvez un restaurant près de vous</p>
+        <p class="lead">Le meilleur resto à portée de main</p>
 
         <div class="search-wrap">
           <label for="restaurant-search" class="sr-only"
@@ -13,9 +13,17 @@
             id="restaurant-search"
             v-model="query"
             @input="onInput"
-            placeholder="Rechercher un restaurant, ex: sushi, Paris..."
+            placeholder="Rechercher votre resto"
             class="search-input"
             aria-label="Rechercher des restaurants"
+          />
+          <input
+            id="restaurant-location"
+            v-model="locationQuery"
+            @input="onInput"
+            placeholder="Localiser votre resto"
+            class="search-input location"
+            aria-label="Filtrer par localisation"
           />
           <button
             v-if="query"
@@ -65,7 +73,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from "vue";
+import { ref, computed, watch, onBeforeUnmount } from "vue";
 // Types locaux (on les redéfinit temporairement)
 interface Restaurant {
   id: string;
@@ -91,6 +99,10 @@ useHead({
 });
 
 const query = ref<string>("");
+const locationQuery = ref<string>("");
+// debounced values used for filtering to avoid excessive re-evaluation while typing
+const debouncedQuery = ref<string>("");
+const debouncedLocation = ref<string>("");
 const cuisineFilter = ref<string>("");
 const sortBy = ref<"relevance" | "rating" | "name">("relevance");
 
@@ -118,16 +130,24 @@ setCuisines();
 loading.value = false;
 
 const filtered = computed<Restaurant[]>(() => {
-  const q = query.value.trim().toLowerCase();
+  const q = debouncedQuery.value.trim().toLowerCase();
+  const locQ = debouncedLocation.value.trim().toLowerCase();
   let out = restaurants.value.filter((r: Restaurant) => {
     if (cuisineFilter.value && r.cuisine !== cuisineFilter.value) return false;
-    if (!q) return true;
-    return (
-      r.name.toLowerCase().includes(q) ||
-      r.location.toLowerCase().includes(q) ||
-      r.cuisine.toLowerCase().includes(q) ||
-      (r.short && r.short.toLowerCase().includes(q))
-    );
+    // If a main query is provided, match against name, cuisine or short description
+    if (q) {
+      const matchMain =
+        r.name.toLowerCase().includes(q) ||
+        r.cuisine.toLowerCase().includes(q) ||
+        (r.short && r.short.toLowerCase().includes(q));
+      if (!matchMain) return false;
+    }
+    // If a location query is provided, match it against the restaurant location (city, street...) or postal if present
+    if (locQ) {
+      if (!r.location || !r.location.toLowerCase().includes(locQ)) return false;
+    }
+    // If neither query nor locationQuery provided, keep the restaurant
+    return true;
   });
 
   if (sortBy.value === "rating")
@@ -151,9 +171,28 @@ const paged = computed(() => {
   return filtered.value.slice(start, start + perPage);
 });
 
-watch([query, cuisineFilter, sortBy], () => {
+// Debounce: update debouncedQuery / debouncedLocation after typing stops
+let __rs_query_timer: any = null
+let __rs_location_timer: any = null
+watch([query, locationQuery], () => {
+  if (__rs_query_timer) clearTimeout(__rs_query_timer)
+  __rs_query_timer = setTimeout(() => {
+    debouncedQuery.value = query.value
+  }, 300)
+  if (__rs_location_timer) clearTimeout(__rs_location_timer)
+  __rs_location_timer = setTimeout(() => {
+    debouncedLocation.value = locationQuery.value
+  }, 300)
+})
+
+watch([debouncedQuery, debouncedLocation, cuisineFilter, sortBy], () => {
   page.value = 1;
-});
+})
+
+onBeforeUnmount(() => {
+  if (__rs_query_timer) clearTimeout(__rs_query_timer)
+  if (__rs_location_timer) clearTimeout(__rs_location_timer)
+})
 
 function next() {
   if (page.value < pages.value) page.value++;
@@ -163,14 +202,13 @@ function prev() {
 }
 function clear() {
   query.value = "";
+  locationQuery.value = "";
+  debouncedQuery.value = "";
+  debouncedLocation.value = "";
 }
 
-let inputTimer: any = null;
 function onInput() {
-  clearTimeout(inputTimer);
-  inputTimer = setTimeout(() => {
-    // ici on ne touche pas à l'URL — la recherche filtre localement
-  }, 150);
+  // noop: debounce handled by watchers above
 }
 </script>
 

@@ -13,6 +13,11 @@
         <input v-model="form.email" type="email" required />
       </div>
 
+      <div v-if="mode === 'register'" class="field">
+        <label>Pseudo</label>
+        <input v-model="form.pseudo" type="text" />
+      </div>
+
       <div class="field">
         <label>Mot de passe</label>
         <input v-model="form.password" type="password" required minlength="6" />
@@ -36,7 +41,7 @@ import { useCart } from '../composables/useCart'
 const router = useRouter()
 const mode = ref<'login'|'register'>('login')
 
-const form = reactive({ email: '', password: '' })
+const form = reactive({ email: '', password: '', pseudo: '' })
 const message = ref('')
 const users = ref<Array<Record<string, any>>>([])
 
@@ -88,7 +93,7 @@ async function submit() {
       id: `u${Date.now()}`,
       email,
       password: pwd,
-      name: email.split('@')[0],
+      name: form.pseudo && form.pseudo.trim() !== '' ? form.pseudo.trim() : email.split('@')[0],
       role: 'user',
       createdAt: Date.now()
     }
