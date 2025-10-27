@@ -1,0 +1,93 @@
+<template>
+  <div class="container">
+    <h1>Créer un restaurateur</h1>
+
+    <div class="auth-card">
+      <form @submit.prevent="submit">
+        <div class="field">
+          <label>Nom</label>
+          <input v-model="name" type="text" required />
+        </div>
+
+        <div class="field">
+          <label>Email</label>
+          <input v-model="email" type="email" required />
+        </div>
+
+        <div class="field">
+          <label>Mot de passe</label>
+          <input v-model="password" type="password" required minlength="6" />
+        </div>
+
+        <div class="field">
+          <label>Nom du restaurant</label>
+          <input v-model="restaurant" type="text" />
+        </div>
+
+        <div class="actions">
+          <button type="submit" class="btn btn-primary btn-lg">Créer le compte</button>
+        </div>
+      </form>
+    </div>
+
+    <p v-if="message" class="message">{{ message }}</p>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ref } from 'vue'
+import { useRouter } from '#app'
+import { useAuth } from '../../composables/useAuth'
+
+const router = useRouter()
+const { user, isLogged, isAdmin } = useAuth()
+
+const name = ref('')
+const email = ref('')
+const password = ref('')
+const restaurant = ref('')
+const message = ref('')
+
+if (process.client) {
+  if (!isLogged.value || !isAdmin.value) {
+    router.push('/admin')
+  }
+}
+
+function submit() {
+  if (!email.value || password.value.length < 6 || !name.value) {
+    message.value = 'Veuillez remplir les champs requis (nom, email, mot de passe ≥6).' 
+    return
+  }
+  const newUser = {
+    id: `p${Date.now()}`,
+    name: name.value,
+    email: email.value,
+    password: password.value,
+    role: 'professional',
+    restaurant: restaurant.value || '',
+    createdAt: Date.now()
+  }
+  try {
+    const raw = localStorage.getItem('resto_users_custom') || '[]'
+    const arr = JSON.parse(raw || '[]')
+    arr.push(newUser)
+    localStorage.setItem('resto_users_custom', JSON.stringify(arr))
+    message.value = 'Professionnel créé.'
+    setTimeout(() => router.push('/admin/dashboard'), 600)
+  } catch (e) {
+    message.value = 'Impossible de sauvegarder.'
+  }
+}
+</script>
+
+<style scoped>
+/* reuse styles similar to auth */
+.auth-card { background: var(--card-bg); padding: 20px; border-radius: 12px; box-shadow: var(--shadow-1); border:1px solid rgba(2,6,23,0.04); margin-bottom:12px }
+.field { margin-bottom:12px }
+.field label { display:block; font-size:0.9rem; margin-bottom:6px }
+.field input { width:100%; padding:10px 12px; border:1px solid rgba(2,6,23,0.06); border-radius:10px; background: rgba(15,23,42,0.02) }
+.actions { margin-top:8px }
+.btn-primary.btn-lg { padding:10px 16px; border-radius:10px; box-shadow: var(--shadow-1) }
+.message { margin-top:12px; color:var(--muted) }
+</style>

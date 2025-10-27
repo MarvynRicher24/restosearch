@@ -3,11 +3,12 @@
     <h1>Connexion / Inscription</h1>
 
     <div class="tabs">
-      <button :class="{active: mode === 'login'}" @click="mode = 'login'">Se connecter</button>
-      <button :class="{active: mode === 'register'}" @click="mode = 'register'">S'inscrire</button>
+      <button class="tab-btn" :class="{active: mode === 'login'}" @click="mode = 'login'">Se connecter</button>
+      <button class="tab-btn" :class="{active: mode === 'register'}" @click="mode = 'register'">S'inscrire</button>
     </div>
 
-    <form @submit.prevent="submit">
+    <div class="auth-card">
+      <form @submit.prevent="submit">
       <div class="field">
         <label>Email</label>
         <input v-model="form.email" type="email" required />
@@ -24,9 +25,10 @@
       </div>
 
       <div class="actions">
-        <button type="submit">{{ mode === 'login' ? 'Se connecter' : "S'inscrire" }}</button>
+        <button type="submit" class="btn btn-primary btn-lg">{{ mode === 'login' ? 'Se connecter' : "S'inscrire" }}</button>
       </div>
     </form>
+    </div>
 
     <p v-if="message" class="message">{{ message }}</p>
   </div>
@@ -53,10 +55,6 @@ async function loadUsers() {
     users.value = []
   }
 }
-
-onMounted(() => {
-  loadUsers()
-})
 
 function fakeToken() {
   return Math.random().toString(36).slice(2)
@@ -141,12 +139,38 @@ async function submit() {
 <style scoped>
 .container { max-width: 700px; margin: 24px auto; padding: 0 16px; }
 .tabs { display:flex; gap:8px; margin-bottom:16px; }
-.tabs button { padding:8px 12px; border:1px solid #ddd; background:#fff; cursor:pointer }
-.tabs button.active { background:var(--accent); color:white; border-color:var(--accent) }
+.tab-btn {
+  padding:8px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(2,6,23,0.06);
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+  font-weight: 700;
+  transition: background .14s cubic-bezier(.4,0,.2,1), transform .12s ease, box-shadow .14s;
+}
+.tab-btn.active {
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0 8px 28px rgba(var(--accent-rgb), 0.12);
+  transform: translateY(-2px) scale(1.02);
+  border-color: rgba(var(--accent-rgb), 0.22);
+}
+.auth-card {
+  background: var(--card-bg);
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: var(--shadow-1);
+  border: 1px solid rgba(2,6,23,0.04);
+  margin-bottom: 12px;
+}
 .field { margin-bottom:12px }
 .field label { display:block; font-size:0.9rem; margin-bottom:6px }
-.field input { width:100%; padding:8px; border:1px solid #e5e7eb; border-radius:4px }
+.field input { width:100%; padding:10px 12px; border:1px solid rgba(2,6,23,0.06); border-radius:10px; background: rgba(15,23,42,0.02); transition: box-shadow .14s, background .12s, transform .06s }
+.field input:focus { outline: none; box-shadow: 0 8px 24px rgba(2,6,23,0.06); background: #fff }
 .actions { margin-top:8px }
-.actions button { padding:8px 14px; background:var(--accent); color:white; border:none; border-radius:6px; cursor:pointer }
+.btn-primary.btn-lg { padding:10px 16px; border-radius:10px; box-shadow: var(--shadow-1); transition: transform .12s cubic-bezier(.4,0,.2,1), box-shadow .14s, filter .12s }
+.btn-primary.btn-lg:hover { transform: translateY(-3px); box-shadow: var(--shadow-2); filter: brightness(1.02) }
+.btn-primary.btn-lg:active { transform: translateY(1px); box-shadow: var(--shadow-1) }
 .message { margin-top:12px; color:var(--muted) }
 </style>
