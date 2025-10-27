@@ -50,10 +50,25 @@
       </section>
     </div>
   </div>
+  <!-- Auth modal -->
+  <div v-if="showAuthModal" class="modal-overlay" @click.self="closeModal">
+    <div class="modal">
+      <h3>Connexion requise</h3>
+      <p>Vous devez être connecté pour ajouter des articles au panier.</p>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" @click="closeModal">Annuler</button>
+        <button class="btn btn-primary" @click="goToAuth">Se connecter / S'inscrire</button>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from "vue";
+import { useRouter, useRoute } from '#app'
+import { useAuth } from '../../composables/useAuth'
+import { useCart } from '../../composables/useCart'
+import { useToast } from '../../composables/useToast'
 
 type Rest = {
   id: string;
@@ -73,6 +88,8 @@ const id = String(route.params.id || "");
 const dish = ref<Dish | null>(null);
 const restaurant = ref<Rest | null>(null);
 const more = ref<Dish[]>([]);
+const showAuthModal = ref(false)
+const { isLogged } = useAuth()
 
 // Chargement des données : restaurants + map de plats (structure: { r1: [...], r2: [...] })
 const { data: restData } = await useAsyncData("restaurants", () =>
@@ -110,20 +127,51 @@ function formatPrice(p: any) {
   return typeof p === "number" ? p.toFixed(2) + " €" : p;
 }
 function addToCart() {
-  // simple demo : on stocke dans localStorage un tableau "resto_cart"
+  // si non connecté, ouvrir modal invitant à se connecter
+  if (!isLogged.value) {
+    showAuthModal.value = true
+    return
+  }
+
+  // si connecté, ajouter via useCart pour avoir un panier par utilisateur
   try {
-    const raw = localStorage.getItem("resto_cart") || "[]";
-    const arr = JSON.parse(raw);
-    arr.push({
+    const { add } = useCart()
+    add({
       id: dish.value?.id,
       name: dish.value?.name,
       price: dish.value?.price,
-    });
-    localStorage.setItem("resto_cart", JSON.stringify(arr));
-    alert("Ajouter au panier ✓");
+      restaurant: { id: restaurant.value?.id, name: restaurant.value?.name }
+    })
+  // petit feedback utilisateur via toast
+  const toast = useToast()
+  toast.show('Plat ajouté au panier ✓', 'success')
   } catch (e) {
-    console.warn(e);
+    console.warn(e)
   }
+}
+
+function goToAuth() {
+  // sauvegarder l'action en attente pour l'ajouter après connexion
+  try {
+    const pending = {
+      item: {
+        id: dish.value?.id,
+        name: dish.value?.name,
+        price: dish.value?.price,
+        restaurant: { id: restaurant.value?.id, name: restaurant.value?.name }
+      },
+      returnPath: process.client ? window.location.pathname : '/'
+    }
+    localStorage.setItem('resto_pending_add', JSON.stringify(pending))
+  } catch (e) {
+    console.warn('Impossible de sauvegarder l\'action en attente', e)
+  }
+  showAuthModal.value = false
+  router.push('/auth')
+}
+
+function closeModal() {
+  showAuthModal.value = false
 }
 
 function goBack() {
@@ -136,3 +184,31 @@ function goBack() {
 </script>
 
 <style scoped src="~/assets/css/site.css"></style>
+
+<style scoped>
+/* s'assurer que les boutons ont bien le curseur pointer */
+.btn { cursor: pointer }
+
+/* modal */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.45);
+  z-index: 1000;
+}
+.modal {
+  background: white;
+  padding: 18px;
+  border-radius: 8px;
+  width: min(520px, calc(100% - 48px));
+  box-shadow: 0 8px 30px rgba(2,6,23,0.2);
+}
+.modal h3 { margin: 0 0 8px }
+.modal p { margin: 0 0 14px; color: var(--muted) }
+.modal-actions { display:flex; gap:12px; justify-content:flex-end }
+.btn-secondary { background: #f3f4f6; color: #111827; border: 1px solid #e5e7eb }
+.btn-primary { background: var(--accent); color: white; border: none }
+</style>

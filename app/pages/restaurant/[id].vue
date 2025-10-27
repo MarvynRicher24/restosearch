@@ -6,6 +6,7 @@
     <div v-else>
       <div class="top">
         <img :src="restaurant.image" :alt="restaurant.name" class="hero-img" />
+
         <div class="info">
           <h1>{{ restaurant.name }}</h1>
           <p class="muted">
@@ -77,7 +78,7 @@ restaurant.value = rests.find((r: Rest) => r.id === id) ?? null;
 
 const map = (dishesMap.value || {}) as Record<string, Dish[]>;
 dishes.value = map[id] ?? [];
-function formatPrice(p: any) {
+function formatPrice(p: number) {
   return typeof p === "number" ? p.toFixed(2) + " €" : p;
 }
 

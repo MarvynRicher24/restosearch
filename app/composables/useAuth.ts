@@ -1,130 +1,62 @@
-// app/composables/useAuth.ts
-import { ref, computed } from "vue";
+import { ref, computed, onMounted } from 'vue'
 
-interface AuthUser {
-  email: string;
-  createdAt?: number;
-}
+// Shared reactive state (singleton) so multiple calls to useAuth() share the same session
+const user = ref<Record<string, any> | null>(null)
+const token = ref<string | null>(null)
+let initialized = false
 
-interface AuthResponse {
-  email: string;
-  token: string;
-  error?: string;
+function initFromStorage() {
+  if (initialized) return
+  initialized = true
+  if (typeof window === 'undefined') return
+  try {
+    const raw = localStorage.getItem('resto_user')
+    if (raw) user.value = JSON.parse(raw)
+  } catch (e) {
+    user.value = null
+  }
+  try {
+    token.value = localStorage.getItem('resto_token')
+  } catch (e) {
+    token.value = null
+  }
 }
 
 export function useAuth() {
-  const user = useState<AuthUser | null>("authUser", () => null);
-  const token = useState<string | null>("authToken", () => null);
-  const isLoading = ref(false);
+  // ensure we read localStorage once on first use (also safe if called during setup)
+  onMounted(() => initFromStorage())
 
-  // Initialiser depuis localStorage côté client
-  if (import.meta.client) {
-    const storedToken = localStorage.getItem("resto_token");
-    const storedUser = localStorage.getItem("resto_user");
+  const isLogged = computed(() => !!token.value && !!user.value)
+  const isAdmin = computed(() => !!user.value && user.value.role === 'admin')
 
-    if (storedToken) token.value = storedToken;
-    if (storedUser) {
-      try {
-        user.value = JSON.parse(storedUser);
-      } catch (error) {
-        console.warn("Erreur parsing user depuis localStorage:", error);
-        localStorage.removeItem("resto_user");
-      }
-    }
-  }
-
-  const isLoggedIn = computed(() => !!token.value && !!user.value);
-
-  async function login(email: string, password: string): Promise<void> {
-    if (!email?.trim() || !password?.trim()) {
-      throw new Error("Email et mot de passe requis");
-    }
-
-    isLoading.value = true;
+  function setSession(u: Record<string, any>, t: string) {
+    user.value = u
+    token.value = t
     try {
-      const res = await $fetch<AuthResponse>("/api/auth/login", {
-        method: "POST",
-        body: { email: email.trim().toLowerCase(), password },
-      });
-
-      if (res.error) {
-        throw new Error(res.error);
-      }
-
-      token.value = res.token;
-      user.value = { email: res.email };
-
-      if (import.meta.client) {
-        localStorage.setItem("resto_token", res.token);
-        localStorage.setItem("resto_user", JSON.stringify(user.value));
-      }
-    } catch (error: any) {
-      const message =
-        error?.data?.error || error?.message || "Erreur lors de la connexion";
-      throw new Error(message);
-    } finally {
-      isLoading.value = false;
+      localStorage.setItem('resto_user', JSON.stringify(u))
+      localStorage.setItem('resto_token', t)
+    } catch (e) {
+      // ignore
     }
   }
 
-  async function register(email: string, password: string): Promise<void> {
-    if (!email?.trim() || !password?.trim()) {
-      throw new Error("Email et mot de passe requis");
-    }
-
-    if (password.length < 6) {
-      throw new Error("Le mot de passe doit contenir au moins 6 caractères");
-    }
-
-    isLoading.value = true;
+  function logout() {
+    user.value = null
+    token.value = null
     try {
-      const res = await $fetch<AuthResponse>("/api/auth/register", {
-        method: "POST",
-        body: { email: email.trim().toLowerCase(), password },
-      });
-
-      if (res.error) {
-        throw new Error(res.error);
-      }
-
-      token.value = res.token;
-      user.value = { email: res.email };
-
-      if (import.meta.client) {
-        localStorage.setItem("resto_token", res.token);
-        localStorage.setItem("resto_user", JSON.stringify(user.value));
-      }
-    } catch (error: any) {
-      const message =
-        error?.data?.error || error?.message || "Erreur lors de l'inscription";
-      throw new Error(message);
-    } finally {
-      isLoading.value = false;
-    }
-  }
-
-  function logout(): void {
-    token.value = null;
-    user.value = null;
-
-    if (import.meta.client) {
-      localStorage.removeItem("resto_token");
-      localStorage.removeItem("resto_user");
-    }
-
-    // Redirection côté client uniquement
-    if (import.meta.client) {
-      navigateTo("/backoffice/login");
+      localStorage.removeItem('resto_user')
+      localStorage.removeItem('resto_token')
+    } catch (e) {
+      // ignore
     }
   }
 
   return {
-    user: readonly(user),
-    token: readonly(token),
-    isLoggedIn,
-    isLoading: readonly(isLoading),
-    login,
-    register,
-    logout,
-  };
+    user,
+    token,
+    isLogged,
+    isAdmin,
+    setSession,
+    logout
+  }
 }

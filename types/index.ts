@@ -17,17 +17,6 @@ export interface Dish {
   image: string;
 }
 
-export interface AuthUser {
-  email: string;
-  createdAt?: number;
-}
-
-export interface AuthResponse {
-  email: string;
-  token: string;
-  error?: string;
-}
-
 export type DishesMap = Record<string, Dish[]>;
 
 export interface SearchFilters {

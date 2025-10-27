@@ -30,7 +30,8 @@
       "~/*": ["./*"],
       "~~/*": ["./*"],
       "@@/*": ["./*"]
-    }
+    },
+    "ignoreDeprecations": "6.0"
   },
   "vueCompilerOptions": {
     "globalTypesPath": "types/vue-global.d.ts"
