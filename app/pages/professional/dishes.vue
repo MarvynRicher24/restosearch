@@ -88,34 +88,52 @@ onBeforeUnmount(() => {
   window.removeEventListener('keydown', onKeydown)
 })
 
-function loadDishes() {
+async function loadDishes() {
   try {
-    const raw = localStorage.getItem('resto_dishes_custom') || '[]'
-    const arr = JSON.parse(raw || '[]')
-    if (Array.isArray(arr)) {
+    // prefer server-side custom dishes when available
+    try {
+      const server = await $fetch('/api/dishes_custom').catch(() => null)
+      const arr = Array.isArray(server) ? server : []
       const ownerKey = user.value?.id || user.value?.email || null
-      dishes.value = arr.filter((d: any) => {
-        return ownerKey ? (d.ownerId === ownerKey) : false
-      })
-    } else {
-      dishes.value = []
+      dishes.value = arr.filter((d: any) => (ownerKey ? d.ownerId === ownerKey : false))
+      // also merge local fallback entries not yet on server
+      try {
+        const raw = localStorage.getItem('resto_dishes_custom') || '[]'
+        const localArr = JSON.parse(raw || '[]')
+        if (Array.isArray(localArr)) {
+          const missing = localArr.filter((ld: any) => !arr.find((s: any) => s.id === ld.id) && (ownerKey ? ld.ownerId === ownerKey : false))
+          dishes.value = dishes.value.concat(missing)
+        }
+      } catch (e) {}
+    } catch (e) {
+      // fallback to localStorage only
+      const raw = localStorage.getItem('resto_dishes_custom') || '[]'
+      const arr = JSON.parse(raw || '[]')
+      if (Array.isArray(arr)) {
+        const ownerKey = user.value?.id || user.value?.email || null
+        dishes.value = arr.filter((d: any) => {
+          return ownerKey ? (d.ownerId === ownerKey) : false
+        })
+      } else {
+        dishes.value = []
+      }
     }
   } catch (e) {
     dishes.value = []
   }
 }
 
-onMounted(() => {
+onMounted(async () => {
   if (!isLogged.value || user.value?.role !== 'professional') {
     router.push('/auth')
     return
   }
-  loadDishes()
+  await loadDishes()
 })
 
-watch(user, (u) => {
+watch(user, async (u) => {
   if (!u) return
-  loadDishes()
+  await loadDishes()
 })
 
 function goBack() {
@@ -140,20 +158,36 @@ function cancelDelete() {
   showConfirm.value = false
 }
 
-function doDeleteConfirmed() {
+async function doDeleteConfirmed() {
   if (!selectedDish.value) return
+  const id = selectedDish.value.id
   try {
-    const id = selectedDish.value.id
-    const raw = localStorage.getItem('resto_dishes_custom') || '[]'
-    const arr = JSON.parse(raw || '[]')
-    if (!Array.isArray(arr)) return
-    const ownerKey = user.value?.id || user.value?.email || null
-    const remaining = arr.filter((it: any) => !(it.id === id && (ownerKey ? it.ownerId === ownerKey : false)))
-    localStorage.setItem('resto_dishes_custom', JSON.stringify(remaining))
-    // reload list
-    loadDishes()
-  } catch (e) {
-    // ignore
+    // attempt server-side delete
+    try {
+      await $fetch('/api/dishes', { method: 'DELETE', body: { id } })
+      // remove any local copies as well
+      try {
+        const raw = localStorage.getItem('resto_dishes_custom') || '[]'
+        const arr = JSON.parse(raw || '[]')
+        const ownerKey = user.value?.id || user.value?.email || null
+        const remaining = (Array.isArray(arr) ? arr : []).filter((it: any) => !(it.id === id && (ownerKey ? it.ownerId === ownerKey : false)))
+        localStorage.setItem('resto_dishes_custom', JSON.stringify(remaining))
+      } catch (e) {}
+    } catch (err) {
+      // server delete failed — fallback to local-only removal
+      try {
+        const raw = localStorage.getItem('resto_dishes_custom') || '[]'
+        const arr = JSON.parse(raw || '[]')
+        if (Array.isArray(arr)) {
+          const ownerKey = user.value?.id || user.value?.email || null
+          const remaining = arr.filter((it: any) => !(it.id === id && (ownerKey ? it.ownerId === ownerKey : false)))
+          localStorage.setItem('resto_dishes_custom', JSON.stringify(remaining))
+        }
+      } catch (e) {}
+    }
+
+    // reload list from preferred source
+    await loadDishes()
   } finally {
     cancelDelete()
   }

@@ -69,7 +69,7 @@ if (process.client) {
   }
 }
 
-function submit() {
+async function submit() {
   if (!email.value || password.value.length < 6 || !name.value || !address.value || !postalCode.value || !city.value) {
     message.value = 'Veuillez remplir les champs requis (nom, adresse, code postal, ville, email, mot de passe ≥6).' 
     return
@@ -86,11 +86,26 @@ function submit() {
     createdAt: Date.now()
   }
   try {
+    // try to persist server-side via API
+    try {
+      const res = await $fetch('/api/admin/createPro', { method: 'POST', body: newUser })
+      // server persisted - also update localStorage for client-side fallbacks
+      const raw = localStorage.getItem('resto_users_custom') || '[]'
+      const arr = JSON.parse(raw || '[]')
+      arr.push(newUser)
+      localStorage.setItem('resto_users_custom', JSON.stringify(arr))
+      message.value = 'Professionnel créé (serveur).'
+      setTimeout(() => router.push('/admin/dashboard'), 600)
+      return
+    } catch (e) {
+      // if server fails, fallback to client-side storage
+    }
+
     const raw = localStorage.getItem('resto_users_custom') || '[]'
     const arr = JSON.parse(raw || '[]')
     arr.push(newUser)
     localStorage.setItem('resto_users_custom', JSON.stringify(arr))
-    message.value = 'Professionnel créé.'
+    message.value = 'Professionnel créé (local).' 
     setTimeout(() => router.push('/admin/dashboard'), 600)
   } catch (e) {
     message.value = 'Impossible de sauvegarder.'

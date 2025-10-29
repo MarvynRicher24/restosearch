@@ -162,24 +162,43 @@ function cancelDelete() {
   showConfirm.value = false
 }
 
-function doDeleteConfirmed() {
+async function doDeleteConfirmed() {
   if (!selectedPro.value) return
   const email = selectedPro.value.email
 
   try {
-    if (selectedPro.value._source === 'custom') {
-      // remove from custom storage
-      const customRaw = localStorage.getItem('resto_users_custom') || '[]'
-      const custom = JSON.parse(customRaw || '[]')
-      const remaining = custom.filter((u: any) => u.email !== email)
-      localStorage.setItem('resto_users_custom', JSON.stringify(remaining))
-    } else {
-      // mark as removed so base file still unchanged
-      const removedRaw = localStorage.getItem('resto_users_removed') || '[]'
-      const removed = JSON.parse(removedRaw || '[]')
-      if (!removed.includes(email)) {
-        removed.push(email)
-        localStorage.setItem('resto_users_removed', JSON.stringify(removed))
+    // Try to delete on server first
+    try {
+      await $fetch('/api/admin/deletePro', { method: 'DELETE', body: { email } })
+      // also clean any local copies if present
+      try {
+        const customRaw = localStorage.getItem('resto_users_custom') || '[]'
+        const custom = JSON.parse(customRaw || '[]')
+        const remaining = custom.filter((u: any) => u.email !== email)
+        localStorage.setItem('resto_users_custom', JSON.stringify(remaining))
+      } catch (e) {}
+      try {
+        const removedRaw = localStorage.getItem('resto_users_removed') || '[]'
+        const removed = JSON.parse(removedRaw || '[]')
+        const newRemoved = (Array.isArray(removed) ? removed : []).filter((e: string) => e !== email)
+        localStorage.setItem('resto_users_removed', JSON.stringify(newRemoved))
+      } catch (e) {}
+    } catch (err) {
+      // server failed — fall back to previous local-only behavior
+      if (selectedPro.value._source === 'custom') {
+        // remove from custom storage
+        const customRaw = localStorage.getItem('resto_users_custom') || '[]'
+        const custom = JSON.parse(customRaw || '[]')
+        const remaining = custom.filter((u: any) => u.email !== email)
+        localStorage.setItem('resto_users_custom', JSON.stringify(remaining))
+      } else {
+        // mark as removed so base file still unchanged
+        const removedRaw = localStorage.getItem('resto_users_removed') || '[]'
+        const removed = JSON.parse(removedRaw || '[]')
+        if (!removed.includes(email)) {
+          removed.push(email)
+          localStorage.setItem('resto_users_removed', JSON.stringify(removed))
+        }
       }
     }
 

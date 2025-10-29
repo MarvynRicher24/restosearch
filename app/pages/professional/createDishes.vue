@@ -54,7 +54,7 @@ function goBack() {
   router.push('/professional/dishes')
 }
 
-function submit() {
+async function submit() {
   message.value = ''
   if (!name.value || price.value === null || isNaN(Number(price.value))) {
     message.value = 'Veuillez remplir le nom et le prix.'
@@ -76,6 +76,22 @@ function submit() {
     createdAt: Date.now()
   }
 
+  // try server persist first
+  try {
+    await $fetch('/api/dishes', { method: 'POST', body: newDish })
+    message.value = 'Plat créé (serveur).'
+    // also keep local fallback
+    const raw = localStorage.getItem('resto_dishes_custom') || '[]'
+    const arr = JSON.parse(raw || '[]')
+    if (Array.isArray(arr)) arr.push(newDish)
+    else localStorage.setItem('resto_dishes_custom', JSON.stringify([newDish]))
+    try { localStorage.setItem('resto_dishes_custom', JSON.stringify(arr)) } catch(e) {}
+    router.push('/professional/dishes')
+    return
+  } catch (e) {
+    // fallback to localStorage
+  }
+
   try {
     const raw = localStorage.getItem('resto_dishes_custom') || '[]'
     const arr = JSON.parse(raw || '[]')
@@ -85,8 +101,7 @@ function submit() {
     } else {
       localStorage.setItem('resto_dishes_custom', JSON.stringify([newDish]))
     }
-    message.value = 'Plat créé.'
-    // redirect to dishes list
+    message.value = 'Plat créé (local).'
     router.push('/professional/dishes')
   } catch (e) {
     message.value = 'Impossible de sauvegarder le plat.'

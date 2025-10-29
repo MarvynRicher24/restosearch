@@ -1,26 +1,29 @@
 [
-    {
-        "id": "u1",
-        "email": "marvyn@hotmail.fr",
-        "password": "marvyn",
-        "name": "Marvyn",
-        "role": "admin",
-        "createdAt": 1698500000000
-    },
-    {
-        "id": "u2",
-        "email": "marvyn2@hotmail.fr",
-        "password": "marvyn",
-        "name": "Marvyn2",
-        "role": "user",
-        "createdAt": 1698501000000
-    },
-    {
-        "id": "u3",
-        "email": "pro@hotmail.fr",
-        "password": "marvyn",
-        "name": "Pro",
-        "role": "professional",
-        "createdAt": 1698502000000
-    }
+  {
+    "id": "u1",
+    "email": "marvyn@hotmail.fr",
+    "password": "marvyn",
+    "name": "Marvyn",
+    "role": "admin",
+    "createdAt": 1698500000000
+  },
+  {
+    "id": "u2",
+    "email": "marvyn2@hotmail.fr",
+    "password": "marvyn",
+    "name": "Marvyn2",
+    "role": "user",
+    "createdAt": 1698501000000
+  },
+  {
+    "id": "p1761735220817",
+    "name": "cooking marvyn",
+    "email": "pro@hotmail.fr",
+    "password": "marvyn",
+    "role": "professional",
+    "address": "rue du cook",
+    "postalCode": "18000",
+    "city": "cook city",
+    "createdAt": 1761735220817
+  }
 ]
