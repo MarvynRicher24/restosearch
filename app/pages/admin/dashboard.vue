@@ -30,7 +30,6 @@
               <div class="pro-info">
                 <strong class="pro-name">{{ p.name }}</strong>
                 <div class="muted pro-email">{{ p.email }}</div>
-                <div class="muted small pro-restaurant">{{ p.restaurant || '' }}</div>
               </div>
               <div class="pro-actions">
                 <button class="btn delete" @click="confirmDelete(p)">Supprimer</button>
@@ -209,7 +208,6 @@ function doDeleteConfirmed() {
 .pro-info { display:flex; flex-direction:column }
 .pro-name { font-size:1.02rem }
 .pro-email { color:var(--muted); font-size:0.92rem }
-.pro-restaurant { color:var(--muted); font-size:0.85rem }
 
 /* buttons */
 .btn { padding:8px 12px; border-radius:8px; border:none; cursor:pointer; font-weight:600 }

@@ -8,8 +8,23 @@
     <div class="auth-card">
       <form @submit.prevent="submit">
         <div class="field">
-          <label>Nom</label>
+          <label>Nom du restaurant</label>
           <input v-model="name" type="text" required />
+        </div>
+
+        <div class="field">
+          <label>Adresse</label>
+          <input v-model="address" type="text" required />
+        </div>
+
+        <div class="field">
+          <label>Code postal</label>
+          <input v-model="postalCode" type="text" required />
+        </div>
+
+        <div class="field">
+          <label>Ville</label>
+          <input v-model="city" type="text" required />
         </div>
 
         <div class="field">
@@ -20,11 +35,6 @@
         <div class="field">
           <label>Mot de passe</label>
           <input v-model="password" type="password" required minlength="6" />
-        </div>
-
-        <div class="field">
-          <label>Nom du restaurant</label>
-          <input v-model="restaurant" type="text" />
         </div>
 
         <div class="actions">
@@ -46,9 +56,11 @@ const router = useRouter()
 const { user, isLogged, isAdmin } = useAuth()
 
 const name = ref('')
+const address = ref('')
+const postalCode = ref('')
+const city = ref('')
 const email = ref('')
 const password = ref('')
-const restaurant = ref('')
 const message = ref('')
 
 if (process.client) {
@@ -58,8 +70,8 @@ if (process.client) {
 }
 
 function submit() {
-  if (!email.value || password.value.length < 6 || !name.value) {
-    message.value = 'Veuillez remplir les champs requis (nom, email, mot de passe ≥6).' 
+  if (!email.value || password.value.length < 6 || !name.value || !address.value || !postalCode.value || !city.value) {
+    message.value = 'Veuillez remplir les champs requis (nom, adresse, code postal, ville, email, mot de passe ≥6).' 
     return
   }
   const newUser = {
@@ -68,7 +80,9 @@ function submit() {
     email: email.value,
     password: password.value,
     role: 'professional',
-    restaurant: restaurant.value || '',
+    address: address.value || '',
+    postalCode: postalCode.value || '',
+    city: city.value || '',
     createdAt: Date.now()
   }
   try {
