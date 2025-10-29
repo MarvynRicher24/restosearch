@@ -1,6 +1,9 @@
 <template>
   <div class="container">
+    <div class="create-top">
+    <button class="back" @click="goBack">← Mon profil</button>
     <h1>Créer un restaurateur</h1>
+    </div>
 
     <div class="auth-card">
       <form @submit.prevent="submit">
@@ -79,6 +82,10 @@ function submit() {
     message.value = 'Impossible de sauvegarder.'
   }
 }
+
+function goBack() {
+  router.push('/admin/dashboard')
+}
 </script>
 
 <style scoped>
@@ -89,5 +96,34 @@ function submit() {
 .field input { width:100%; padding:10px 12px; border:1px solid rgba(2,6,23,0.06); border-radius:10px; background: rgba(15,23,42,0.02) }
 .actions { margin-top:8px }
 .btn-primary.btn-lg { padding:10px 16px; border-radius:10px; box-shadow: var(--shadow-1) }
-.message { margin-top:12px; color:var(--muted) }
+ .message { margin-top:12px; color:var(--muted) }
+
+/* back button style (copied from pages/user/orders.vue) */
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 12px 0;
+  color: var(--muted);
+  background: var(--card-bg);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 999px;
+  padding: 8px 12px;
+  box-shadow: var(--shadow-1);
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease,
+    box-shadow 0.15s ease, transform 0.05s ease;
+}
+.back:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.back:active {
+  transform: translateY(1px);
+}
+.back:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
 </style>
