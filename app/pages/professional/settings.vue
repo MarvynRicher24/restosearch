@@ -19,7 +19,7 @@
 
 				<div class="field">
 					<label>Code postal</label>
-					<input v-model="postalCode" type="text" required pattern="\\d{2,10}" />
+					<input v-model="postalCode" type="text" required />
 				</div>
 
 				<div class="field">
@@ -58,7 +58,7 @@ onMounted(() => {
 	}
 	// Prefill from user if available
 	if (user.value) {
-		restaurantName.value = user.value.restaurant || user.value.restaurantName || ''
+		restaurantName.value = user.value.restaurant || user.value.restaurantName || user.value.name || ''
 		address.value = user.value.address || ''
 		postalCode.value = user.value.postalCode || ''
 		city.value = user.value.city || ''
@@ -68,7 +68,7 @@ onMounted(() => {
 // keep fields in sync if user object changes later
 watch(user, (u) => {
 	if (!u) return
-	restaurantName.value = u.restaurant || u.restaurantName || ''
+	restaurantName.value = u.restaurant || u.restaurantName || u.name || ''
 	address.value = u.address || ''
 	postalCode.value = u.postalCode || ''
 	city.value = u.city || ''
@@ -88,6 +88,8 @@ function submit() {
 	const updated = {
 		...user.value,
 		restaurant: restaurantName.value,
+		restaurantName: restaurantName.value,
+		name: restaurantName.value,
 		address: address.value,
 		postalCode: postalCode.value,
 		city: city.value
@@ -96,7 +98,23 @@ function submit() {
 	try {
 		// Update session and localStorage via setSession
 		setSession(updated, token?.value || '')
-		message.value = 'Modifications enregistrées.'
+			// If this professional exists in the admin-created users list, update it there as well
+			try {
+				const raw = localStorage.getItem('resto_users_custom') || '[]'
+				const arr = JSON.parse(raw || '[]')
+				if (Array.isArray(arr)) {
+					const idx = arr.findIndex((u: any) => (u.id && user.value?.id && u.id === user.value.id) || (u.email && u.email === user.value?.email))
+					if (idx !== -1) {
+						arr[idx] = { ...arr[idx], ...updated }
+						localStorage.setItem('resto_users_custom', JSON.stringify(arr))
+					}
+				}
+			} catch (e) {
+				// ignore
+			}
+			message.value = 'Modifications enregistrées.'
+			// Redirect back to professional dashboard
+			router.push('/professional/dashboard')
 	} catch (e) {
 		message.value = 'Erreur lors de la sauvegarde.'
 	}

@@ -6,8 +6,11 @@
     <div v-else class="main">
       <div class="header">
         <div>
-          <p class="welcome">Bonjour, <strong>{{ user.name }}</strong></p>
           <p class="email">{{ user.email }} — <em>{{ user.role }}</em></p>
+          <div v-if="user.restaurant || user.address" class="resto-info">
+            <div class="resto-name">{{ user.restaurant || user.restaurantName || user.name || '' }}</div>
+            <div class="muted">{{ user.address || '' }} {{ user.postalCode ? (' - ' + user.postalCode) : '' }} {{ user.city || '' }}</div>
+          </div>
         </div>
         <div>
           <button class="logout" @click="doLogout">Se déconnecter</button>
@@ -76,4 +79,7 @@ function goToDishes() {
 .card[role="button"]:hover { transform: translateY(-4px); box-shadow: 0 6px 18px rgba(2,6,23,0.08); border-color: var(--accent) }
 .card[role="button"]:active { transform: translateY(-2px) }
 .logout { padding:8px 12px; background:#0ea5a4; color:white; border:none; border-radius:6px; cursor:pointer }
+.btn.small { margin-top:6px; padding:6px 10px; border-radius:8px; border:1px solid rgba(2,6,23,0.06); background:transparent; cursor:pointer }
+.resto-info { margin-top:8px }
+.resto-name { font-weight:700 }
 </style>

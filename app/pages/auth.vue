@@ -50,7 +50,27 @@ const users = ref<Array<Record<string, any>>>([])
 async function loadUsers() {
   try {
     const res = await $fetch('/data/users.json')
-    users.value = Array.isArray(res) ? res : []
+    const staticUsers = Array.isArray(res) ? res : []
+    // charger les utilisateurs créés depuis l'admin (localStorage)
+    let merged = new Map<string, any>()
+    try {
+      // start with static users
+      for (const u of staticUsers) {
+        if (u && u.email) merged.set((u.email || '').toLowerCase(), u)
+      }
+      const customRaw = localStorage.getItem('resto_users_custom') || '[]'
+      const custom = JSON.parse(customRaw || '[]')
+      if (Array.isArray(custom) && custom.length) {
+        // custom users override static entries with same email
+        for (const u of custom) {
+          if (u && u.email) merged.set((u.email || '').toLowerCase(), u)
+        }
+      }
+      users.value = Array.from(merged.values())
+    } catch (e) {
+      // fallback to static list
+      users.value = staticUsers
+    }
   } catch (e) {
     users.value = []
   }
@@ -83,7 +103,8 @@ async function submit() {
     }
   const token = fakeToken()
   // centraliser la session via le composable
-  setSession({ email: user.email, name: user.name, role: user.role }, token)
+  // persist the full user object in session so settings can edit all fields
+  setSession(user, token)
   message.value = user.role === 'admin' ? 'Connecté en tant qu\'administrateur.' : (user.role === 'professional' ? 'Connecté en tant que professionnel.' : 'Connecté en tant qu\'utilisateur.')
   } else {
     // Inscription simulée côté client (le fichier JSON public n'est pas modifié)
@@ -97,7 +118,8 @@ async function submit() {
     }
     users.value.push(newUser)
     const token = fakeToken()
-    setSession({ email: newUser.email, name: newUser.name, role: newUser.role }, token)
+    // save full user object in session
+    setSession(newUser, token)
     message.value = "Inscription réussie (simulée)."
   }
 

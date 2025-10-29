@@ -20,13 +20,13 @@
 				<section class="controls">
 					<p class="subtitle">Vos actions</p>
 					<div class="cards">
-						<NuxtLink to="/user/orders" class="card card-link">
+						<NuxtLink to="/user/orders" class="card card-link" role="button" tabindex="0">
 							<div>
 								<strong>Commandes</strong>
 								<div class="muted">Voir l'historique de vos commandes</div>
 							</div>
 						</NuxtLink>
-						<NuxtLink to="/user/settings" class="card card-link">
+						<NuxtLink to="/user/settings" class="card card-link" role="button" tabindex="0">
 							<div>
 								<strong>Paramètres</strong>
 								<div class="muted">Modifier votre profil</div>
@@ -85,8 +85,11 @@ function doLogout() {
 .link.small { padding:6px 10px; background:transparent; border-radius:8px; border:1px solid rgba(2,6,23,0.04); text-decoration:none; color:var(--text) }
 .subtitle { margin: 12px 0 }
 .cards { display:grid; grid-template-columns: repeat(auto-fit,minmax(240px,1fr)); gap:12px }
-.card { background:#fff; border:1px solid #e5e7eb; padding:16px; border-radius:8px; box-shadow:0 4px 14px rgba(2,6,23,0.03); display:flex; justify-content:space-between; align-items:center }
+.card { background:#fff; border:1px solid #e5e7eb; padding:16px; border-radius:8px; box-shadow:0 4px 14px rgba(2,6,23,0.03); display:flex; justify-content:space-between; align-items:center; transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease }
 .card-link { text-decoration:none; color:inherit }
+.card[role="button"] { cursor: pointer }
+.card[role="button"]:hover { transform: translateY(-4px); box-shadow: 0 6px 18px rgba(2,6,23,0.08); border-color: var(--accent) }
+.card[role="button"]:active { transform: translateY(-2px) }
 .card-meta { color:var(--muted); font-weight:700 }
 .logout { padding:8px 12px; background:#111827; color:white; border:none; border-radius:6px; cursor:pointer }
 </style>
