@@ -17,8 +17,10 @@
         <div class="dish-body">
           <strong class="dish-name">{{ d.name }}</strong>
           <div class="muted">{{ formatPrice(d.price) }}</div>
+          <div v-if="d.description" class="dish-desc muted">{{ d.description }}</div>
         </div>
         <div class="dish-actions">
+          <button class="btn" @click.prevent="goEdit(d)" style="margin-right:8px">Modifier</button>
           <button class="btn btn-danger" @click="openConfirm(d)">Supprimer</button>
         </div>
       </article>
@@ -142,6 +144,11 @@ function goBack() {
 
 function goCreate() {
   router.push('/professional/createDishes')
+}
+
+function goEdit(dish: Record<string, any>) {
+  if (!dish || !dish.id) return
+  router.push(`/professional/editDish/${dish.id}`)
 }
 
 function formatPrice(p: any) {

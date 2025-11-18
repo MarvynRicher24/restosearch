@@ -35,6 +35,11 @@
 					<input v-model="city" type="text" required />
 				</div>
 
+				<div class="field">
+					<label>Description (une phrase)</label>
+					<input v-model="description" type="text" maxlength="200" placeholder="Une courte phrase qui décrit votre restaurant" />
+				</div>
+
 				<div class="actions">
 					<button type="submit" class="btn btn-primary btn-lg">Enregistrer</button>
 				</div>
@@ -57,6 +62,7 @@ const restaurantName = ref('')
 const address = ref('')
 const postalCode = ref('')
 const city = ref('')
+const description = ref('')
 const preview = ref<string | null>(null)
 const imageData = ref<string | null>(null) // data URL to send to server
 const message = ref('')
@@ -73,6 +79,8 @@ onMounted(() => {
 		address.value = user.value.address || ''
 		postalCode.value = user.value.postalCode || ''
 		city.value = user.value.city || ''
+		// short description / phrase
+		description.value = user.value.description || user.value.bio || ''
 	}
 })
 
@@ -83,6 +91,8 @@ watch(user, (u) => {
 	address.value = u.address || ''
 	postalCode.value = u.postalCode || ''
 	city.value = u.city || ''
+	// short description / phrase
+	description.value = u.description || u.bio || ''
 	// prefill preview if server stored image
 	if (u.image) {
 		preview.value = u.image
@@ -106,7 +116,9 @@ async function submit() {
 		name: restaurantName.value,
 		address: address.value,
 		postalCode: postalCode.value,
-		city: city.value
+		city: city.value,
+		// optional short description
+		description: description.value
 	}
 	if (imageData.value) updated.image = imageData.value
 

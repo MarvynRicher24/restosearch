@@ -1,37 +1,36 @@
 <template>
   <div class="container">
-      <button class="back" @click="goBack">← Mon profil</button>
-      <h1 class="title">Créer un plat</h1>
+    <button class="back" @click="goBack">← Retour</button>
+    <h1 class="title">Modifier le plat</h1>
 
-    <div class="auth-card">
+    <div v-if="!loaded" class="loading">Chargement...</div>
+
+    <div v-else class="auth-card">
       <form @submit.prevent="submit">
         <div class="field">
           <label>Nom</label>
           <input v-model="name" type="text" required />
         </div>
 
-        <!-- Champ URL supprimé — upload de fichier utilisé à la place -->
-
         <div class="field">
-          <label>Importer une photo (webp ou jpeg)</label>
-          <input ref="fileInput" @change="onFileChange" type="file" accept="image/webp,image/jpeg" />
-          <div v-if="preview" class="preview">
-            <img :src="preview" alt="aperçu" />
-          </div>
+          <label>Prix (€)</label>
+          <input v-model.number="price" type="number" step="0.01" required />
         </div>
 
         <div class="field">
-          <label>Description</label>
+          <label>Description (une phrase)</label>
           <input v-model="description" type="text" maxlength="200" placeholder="Une courte phrase (max 200 caractères)" />
         </div>
 
         <div class="field">
-          <label>Prix (€)</label>
-          <input v-model="price" type="number" step="0.01" required />
+          <label>Importer une photo (webp ou jpeg)</label>
+          <input ref="fileInput" @change="onFileChange" type="file" accept="image/webp,image/jpeg" />
+          <div v-if="preview" class="preview"><img :src="preview" alt="aperçu" style="max-width:320px;border-radius:8px"/></div>
         </div>
 
         <div class="actions">
-          <button type="submit" class="btn btn-primary btn-lg">Créer le plat</button>
+          <button type="submit" class="btn btn-primary btn-lg">Enregistrer</button>
+          <button type="button" class="btn subtle" @click="cancel" style="margin-left:8px">Annuler</button>
         </div>
       </form>
     </div>
@@ -42,32 +41,73 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { useRouter } from '#app'
-import { useAuth } from '../../composables/useAuth'
+import { useRouter, useRoute } from '#app'
+import { useAuth } from '../../../composables/useAuth'
 
 const router = useRouter()
+const route = useRoute()
 const { user, isLogged } = useAuth()
 
+const id = String(route.params.id || '')
+
+const loaded = ref(false)
 const name = ref('')
+const price = ref<number | null>(null)
+const description = ref('')
 const preview = ref<string | null>(null)
 const imageData = ref<string | null>(null)
 const fileInput = ref<HTMLInputElement | null>(null)
-const description = ref('')
-const price = ref<number | null>(null)
 const message = ref('')
 
-onMounted(() => {
+onMounted(async () => {
   if (!isLogged.value || user.value?.role !== 'professional') {
     router.push('/auth')
     return
   }
+
+  // try to load dish from server custom list
+  try {
+    const server = await $fetch('/api/dishes_custom').catch(() => null)
+    const arr = Array.isArray(server) ? server : []
+    const found = arr.find((d: any) => d.id === id)
+    if (found) {
+      populate(found)
+      loaded.value = true
+      return
+    }
+  } catch (e) {}
+
+  // fallback to localStorage
+  try {
+    const raw = localStorage.getItem('resto_dishes_custom') || '[]'
+    const arr = JSON.parse(raw || '[]')
+    if (Array.isArray(arr)) {
+      const found = arr.find((d: any) => d.id === id)
+      if (found) {
+        populate(found)
+      }
+    }
+  } catch (e) {}
+  loaded.value = true
 })
+
+function populate(d: any) {
+  name.value = d.name || ''
+  price.value = d.price || null
+  description.value = d.description || ''
+  preview.value = d.image || null
+  imageData.value = d.image || null
+}
 
 function goBack() {
   router.push('/professional/dishes')
 }
 
-function onFileChange(e: Event) {
+function cancel() {
+  router.push('/professional/dishes')
+}
+
+function onFileChange() {
   const el = fileInput.value
   const f = el?.files?.[0]
   if (!f) return
@@ -76,7 +116,6 @@ function onFileChange(e: Event) {
     message.value = 'Format non supporté — utilisez webp ou jpeg.'
     return
   }
-
   const reader = new FileReader()
   reader.onload = () => {
     const result = reader.result as string
@@ -95,57 +134,46 @@ async function submit() {
     message.value = 'Veuillez remplir le nom et le prix.'
     return
   }
-
   if (description.value && description.value.length > 200) {
     message.value = 'La description est trop longue (200 caractères max).'
     return
   }
 
-  const ownerKey = user.value?.id || user.value?.email || null
-  if (!ownerKey) {
-    message.value = 'Utilisateur introuvable.'
-    return
-  }
-
-  const newDish = {
-    id: `d${Date.now()}`,
+  // build updated object
+  const updated: any = {
+    id,
     name: name.value,
-      description: description.value || '',
     price: Number(price.value),
-  image: imageData.value || '',
-    ownerId: ownerKey,
-    createdAt: Date.now()
+    description: description.value || '',
+    image: imageData.value || ''
   }
 
-  // try server persist first
+  // try server update (use fetch to avoid $fetch method typing issues)
   try {
-    await $fetch('/api/dishes', { method: 'POST', body: newDish })
-    message.value = 'Plat créé (serveur).'
-    // also keep local fallback
-    const raw = localStorage.getItem('resto_dishes_custom') || '[]'
-    const arr = JSON.parse(raw || '[]')
-    if (Array.isArray(arr)) arr.push(newDish)
-    else localStorage.setItem('resto_dishes_custom', JSON.stringify([newDish]))
-    try { localStorage.setItem('resto_dishes_custom', JSON.stringify(arr)) } catch(e) {}
-    router.push('/professional/dishes')
-    return
-  } catch (e) {
-    // fallback to localStorage
-  }
-
-  try {
-    const raw = localStorage.getItem('resto_dishes_custom') || '[]'
-    const arr = JSON.parse(raw || '[]')
-    if (Array.isArray(arr)) {
-      arr.push(newDish)
-      localStorage.setItem('resto_dishes_custom', JSON.stringify(arr))
-    } else {
-      localStorage.setItem('resto_dishes_custom', JSON.stringify([newDish]))
+    try {
+      await fetch('/api/professional/dishes', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(updated) })
+      message.value = 'Modifications enregistrées sur le serveur.'
+    } catch (e) {
+      // ignore server error and fallback to local
     }
-    message.value = 'Plat créé (local).'
+
+    // local fallback: update localStorage
+    try {
+      const raw = localStorage.getItem('resto_dishes_custom') || '[]'
+      const arr = JSON.parse(raw || '[]')
+      if (Array.isArray(arr)) {
+        const idx = arr.findIndex((it: any) => it.id === id)
+        if (idx !== -1) arr[idx] = { ...arr[idx], ...updated }
+        else arr.push(updated)
+        localStorage.setItem('resto_dishes_custom', JSON.stringify(arr))
+      } else {
+        localStorage.setItem('resto_dishes_custom', JSON.stringify([updated]))
+      }
+    } catch (e) {}
+
     router.push('/professional/dishes')
   } catch (e) {
-    message.value = 'Impossible de sauvegarder le plat.'
+    message.value = 'Erreur lors de la sauvegarde.'
   }
 }
 </script>
@@ -177,6 +205,4 @@ async function submit() {
     box-shadow 0.15s ease, transform 0.05s ease;
 }
 .back:hover { border-color: var(--accent); color: var(--accent) }
-.back:active { transform: translateY(1px) }
-.back:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px }
 </style>

@@ -25,7 +25,8 @@ export default defineEventHandler(async (event) => {
     const updated: any = { ...existing }
 
     // copy simple fields; we will consolidate restaurant name into a single `name` field
-    const allowed = ['address', 'postalCode', 'city']
+  // allow updating address, postal code, city and a short description
+  const allowed = ['address', 'postalCode', 'city', 'description']
     for (const k of allowed) {
       if (body[k] !== undefined) updated[k] = body[k]
     }
