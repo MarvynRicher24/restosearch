@@ -34,6 +34,7 @@ export interface User {
   postalCode?: string;
   city?: string;
   description?: string;
+  bio?: string;
   phone?: string;
 }
 

@@ -81,6 +81,28 @@ onMounted(() => {
 		city.value = user.value.city || ''
 		// short description / phrase
 		description.value = user.value.description || user.value.bio || ''
+
+		// ensure preview is initialized immediately if user has an image
+		if (user.value.image) {
+			preview.value = user.value.image
+			imageData.value = user.value.image
+		} else {
+			// fallback: try to find a custom stored user with an image
+			try {
+				const raw = localStorage.getItem('resto_users_custom') || '[]'
+				const arr = JSON.parse(raw || '[]')
+				if (Array.isArray(arr)) {
+					const ownerKey = (user.value?.id) || (user.value?.email) || null
+					if (ownerKey) {
+						const found = arr.find((u: any) => (u.id && u.id === user.value?.id) || (u.email && u.email === user.value?.email))
+						if (found && found.image) {
+							preview.value = found.image
+							imageData.value = found.image
+						}
+					}
+				}
+			} catch (e) {}
+		}
 	}
 })
 
@@ -227,5 +249,9 @@ const __ = { fileInput }
 .back:active { transform: translateY(1px) }
 .back:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px }
 .empty { margin-top:12px }
+
+/* preview image sizing for settings */
+.preview { margin-top:8px }
+.preview img { display:block; max-width:120px; max-height:90px; width:auto; height:auto; border-radius:8px; object-fit:cover }
 </style>
 
