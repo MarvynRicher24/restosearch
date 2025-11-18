@@ -13,6 +13,14 @@
 				</div>
 
 				<div class="field">
+					<label>Image du restaurant (webp ou jpeg)</label>
+					<input ref="fileInput" @change="onFileChange" type="file" accept="image/webp,image/jpeg" />
+					<div v-if="preview" class="preview">
+						<img :src="preview" alt="aperçu" />
+					</div>
+				</div>
+
+				<div class="field">
 					<label>Adresse</label>
 					<input v-model="address" type="text" required />
 				</div>
@@ -49,7 +57,10 @@ const restaurantName = ref('')
 const address = ref('')
 const postalCode = ref('')
 const city = ref('')
+const preview = ref<string | null>(null)
+const imageData = ref<string | null>(null) // data URL to send to server
 const message = ref('')
+const fileInput = ref<HTMLInputElement | null>(null)
 
 onMounted(() => {
 	if (!isLogged.value) {
@@ -72,9 +83,13 @@ watch(user, (u) => {
 	address.value = u.address || ''
 	postalCode.value = u.postalCode || ''
 	city.value = u.city || ''
+	// prefill preview if server stored image
+	if (u.image) {
+		preview.value = u.image
+	}
 })
 
-function submit() {
+async function submit() {
 	if (!restaurantName.value || !address.value || !postalCode.value || !city.value) {
 		message.value = 'Veuillez remplir tous les champs.'
 		return
@@ -85,36 +100,58 @@ function submit() {
 		return
 	}
 
-	const updated = {
+	const updated: any = {
 		...user.value,
-		restaurant: restaurantName.value,
-		restaurantName: restaurantName.value,
+		// consolidate to a single `name` field for the restaurant
 		name: restaurantName.value,
 		address: address.value,
 		postalCode: postalCode.value,
 		city: city.value
 	}
+	if (imageData.value) updated.image = imageData.value
 
 	try {
-		// Update session and localStorage via setSession
-		setSession(updated, token?.value || '')
-			// If this professional exists in the admin-created users list, update it there as well
-			try {
-				const raw = localStorage.getItem('resto_users_custom') || '[]'
-				const arr = JSON.parse(raw || '[]')
-				if (Array.isArray(arr)) {
-					const idx = arr.findIndex((u: any) => (u.id && user.value?.id && u.id === user.value.id) || (u.email && u.email === user.value?.email))
-					if (idx !== -1) {
-						arr[idx] = { ...arr[idx], ...updated }
-						localStorage.setItem('resto_users_custom', JSON.stringify(arr))
+		// Try server update
+		try {
+			const res = await $fetch('/api/professional/updateProfile', { method: 'POST', body: updated })
+			if (res && (res as any).user) {
+				const serverUser = (res as any).user
+				setSession(serverUser, token?.value || '')
+				message.value = 'Modifications enregistrées sur le serveur.'
+				// update local custom list if present
+				try {
+					const raw = localStorage.getItem('resto_users_custom') || '[]'
+					const arr = JSON.parse(raw || '[]')
+					if (Array.isArray(arr)) {
+						const idx = arr.findIndex((u: any) => (u.id && user.value?.id && u.id === user.value.id) || (u.email && u.email === user.value?.email))
+						if (idx !== -1) {
+							arr[idx] = { ...arr[idx], ...serverUser }
+							localStorage.setItem('resto_users_custom', JSON.stringify(arr))
+						}
 					}
-				}
-			} catch (e) {
-				// ignore
+				} catch (e) {}
+				router.push('/professional/dashboard')
+				return
 			}
-			message.value = 'Modifications enregistrées.'
-			// Redirect back to professional dashboard
-			router.push('/professional/dashboard')
+		} catch (err) {
+			// server failed — fall back to local session update below
+		}
+
+		// local fallback (no server)
+		setSession(updated, token?.value || '')
+		try {
+			const raw = localStorage.getItem('resto_users_custom') || '[]'
+			const arr = JSON.parse(raw || '[]')
+			if (Array.isArray(arr)) {
+				const idx = arr.findIndex((u: any) => (u.id && user.value?.id && u.id === user.value.id) || (u.email && u.email === user.value?.email))
+				if (idx !== -1) {
+					arr[idx] = { ...arr[idx], ...updated }
+					localStorage.setItem('resto_users_custom', JSON.stringify(arr))
+				}
+			}
+		} catch (e) {}
+		message.value = 'Modifications enregistrées (local).'
+		router.push('/professional/dashboard')
 	} catch (e) {
 		message.value = 'Erreur lors de la sauvegarde.'
 	}
@@ -123,6 +160,31 @@ function submit() {
 	function goBack() {
 		router.push('/professional/dashboard')
 	}
+
+function onFileChange(e: Event) {
+	const el = fileInput.value
+	const f = el?.files?.[0]
+	if (!f) return
+	const allowed = ['image/webp', 'image/jpeg']
+	if (!allowed.includes(f.type)) {
+		message.value = 'Format non supporté — utilisez webp ou jpeg.'
+		return
+	}
+
+	const reader = new FileReader()
+	reader.onload = () => {
+		const result = reader.result as string
+		preview.value = result
+		imageData.value = result // data URL
+	}
+	reader.onerror = () => {
+		message.value = 'Impossible de lire le fichier.'
+	}
+	reader.readAsDataURL(f)
+}
+
+// expose ref to template
+const __ = { fileInput }
 </script>
 
 <style scoped>

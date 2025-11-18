@@ -22,8 +22,9 @@
     "password": "marvyn",
     "role": "professional",
     "address": "rue du cook",
-    "postalCode": "18000",
+    "postalCode": "18320",
     "city": "cook city",
-    "createdAt": 1761735220817
+    "createdAt": 1761735220817,
+    "image": "/uploads/professional/p1761735220817-1763451287066.jpg"
   }
 ]

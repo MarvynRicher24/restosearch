@@ -164,7 +164,7 @@ async function doDeleteConfirmed() {
   try {
     // attempt server-side delete
     try {
-      await $fetch('/api/dishes', { method: 'DELETE', body: { id } })
+      await $fetch('/api/professional/dishes', { method: 'DELETE', body: { id } })
       // remove any local copies as well
       try {
         const raw = localStorage.getItem('resto_dishes_custom') || '[]'
