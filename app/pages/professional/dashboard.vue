@@ -20,7 +20,6 @@
       <section class="controls">
         <p class="subtitle">Outils professionnels</p>
         <div class="cards">
-          <div class="card" role="button" tabindex="0" @click="goToOrders" @keydown.enter="goToOrders">Mes commandes</div>
           <div class="card" role="button" tabindex="0" @click="goToDishes" @keydown.enter="goToDishes">Mes plats</div>
           <div class="card" role="button" tabindex="0" @click="goToSettings" @keydown.enter="goToSettings">Mon restaurant</div>
         </div>

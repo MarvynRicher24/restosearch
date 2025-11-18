@@ -48,17 +48,18 @@
 
 <script setup lang="ts">
 import { ref, onMounted, watch, nextTick, onBeforeUnmount } from 'vue'
+import type { Dish } from '../../../types'
 import { useRouter } from '#app'
 import { useAuth } from '../../composables/useAuth'
 
 const router = useRouter()
 const { user, isLogged } = useAuth()
 
-const dishes = ref<Array<Record<string, any>>>([])
+const dishes = ref<Dish[]>([])
 
 // modal state for delete confirmation
 const showConfirm = ref(false)
-const selectedDish = ref<Record<string, any> | null>(null)
+const selectedDish = ref<Dish | null>(null)
 const confirmBtn = ref<HTMLButtonElement | null>(null)
 const cancelBtn = ref<HTMLButtonElement | null>(null)
 
@@ -94,7 +95,7 @@ async function loadDishes() {
   try {
     // prefer server-side custom dishes when available
     try {
-      const server = await $fetch('/api/dishes_custom').catch(() => null)
+      const server = await $fetch('/api/professional/dishes_custom').catch(() => null)
       const arr = Array.isArray(server) ? server : []
       const ownerKey = user.value?.id || user.value?.email || null
       dishes.value = arr.filter((d: any) => (ownerKey ? d.ownerId === ownerKey : false))
@@ -146,7 +147,7 @@ function goCreate() {
   router.push('/professional/createDishes')
 }
 
-function goEdit(dish: Record<string, any>) {
+function goEdit(dish: Dish) {
   if (!dish || !dish.id) return
   router.push(`/professional/editDish/${dish.id}`)
 }
@@ -155,7 +156,7 @@ function formatPrice(p: any) {
   return typeof p === 'number' ? p.toFixed(2) + ' €' : p
 }
 
-function openConfirm(dish: Record<string, any>) {
+function openConfirm(dish: Dish) {
   selectedDish.value = dish
   showConfirm.value = true
 }

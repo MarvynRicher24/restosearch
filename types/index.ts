@@ -14,7 +14,27 @@ export interface Dish {
   id: string;
   name: string;
   price: number;
-  image: string;
+  image?: string;
+  description?: string;
+  ownerId?: string;
+  createdAt?: number;
+}
+
+export interface User {
+  id: string;
+  email: string;
+  name?: string;
+  role: 'admin' | 'professional' | 'user';
+  image?: string;
+  createdAt?: number;
+  // Professional-specific (optional)
+  restaurant?: string;
+  restaurantName?: string;
+  address?: string;
+  postalCode?: string;
+  city?: string;
+  description?: string;
+  phone?: string;
 }
 
 export type DishesMap = Record<string, Dish[]>;

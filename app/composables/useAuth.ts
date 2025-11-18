@@ -1,7 +1,8 @@
 import { ref, computed, onMounted } from 'vue'
+import type { User } from '../../types'
 
 // Shared reactive state (singleton) so multiple calls to useAuth() share the same session
-const user = ref<Record<string, any> | null>(null)
+const user = ref<User | null>(null)
 const token = ref<string | null>(null)
 let initialized = false
 
@@ -29,7 +30,7 @@ export function useAuth() {
   const isLogged = computed(() => !!token.value && !!user.value)
   const isAdmin = computed(() => !!user.value && user.value.role === 'admin')
 
-  function setSession(u: Record<string, any>, t: string) {
+  function setSession(u: User, t: string) {
     user.value = u
     token.value = t
     try {

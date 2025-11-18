@@ -42,6 +42,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import type { Dish } from '../../../types'
 import { useRouter } from '#app'
 import { useAuth } from '../../composables/useAuth'
 
@@ -67,7 +68,7 @@ function goBack() {
   router.push('/professional/dishes')
 }
 
-function onFileChange(e: Event) {
+async function onFileChange(e: Event) {
   const el = fileInput.value
   const f = el?.files?.[0]
   if (!f) return
@@ -76,17 +77,46 @@ function onFileChange(e: Event) {
     message.value = 'Format non supporté — utilisez webp ou jpeg.'
     return
   }
+  // resize image before storing as dataURL
+  try {
+    const resized = await resizeImageFile(f, 1024, 1024, 0.8)
+    preview.value = resized
+    imageData.value = resized
+  } catch (err) {
+    message.value = 'Impossible de traiter l\'image.'
+  }
+}
 
-  const reader = new FileReader()
-  reader.onload = () => {
-    const result = reader.result as string
-    preview.value = result
-    imageData.value = result
-  }
-  reader.onerror = () => {
-    message.value = 'Impossible de lire le fichier.'
-  }
-  reader.readAsDataURL(f)
+async function resizeImageFile(file: File, maxWidth = 1024, maxHeight = 1024, quality = 0.8) {
+  // read file as dataURL
+  const dataUrl: string = await new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => resolve(reader.result as string)
+    reader.onerror = () => reject(new Error('read error'))
+    reader.readAsDataURL(file)
+  })
+
+  // create image
+  const img: HTMLImageElement = await new Promise((resolve, reject) => {
+    const image = new Image()
+    image.onload = () => resolve(image)
+    image.onerror = () => reject(new Error('image load error'))
+    image.src = dataUrl
+  })
+
+  const ratio = Math.min(1, maxWidth / img.width, maxHeight / img.height)
+  const targetW = Math.max(1, Math.round(img.width * ratio))
+  const targetH = Math.max(1, Math.round(img.height * ratio))
+
+  const canvas = document.createElement('canvas')
+  canvas.width = targetW
+  canvas.height = targetH
+  const ctx = canvas.getContext('2d')
+  if (!ctx) throw new Error('canvas context not available')
+  ctx.drawImage(img, 0, 0, targetW, targetH)
+
+  const outType = file.type === 'image/jpeg' ? 'image/jpeg' : 'image/webp'
+  return canvas.toDataURL(outType, quality)
 }
 
 async function submit() {
@@ -107,7 +137,7 @@ async function submit() {
     return
   }
 
-  const newDish = {
+  const newDish: Dish = {
     id: `d${Date.now()}`,
     name: name.value,
       description: description.value || '',
@@ -179,4 +209,8 @@ async function submit() {
 .back:hover { border-color: var(--accent); color: var(--accent) }
 .back:active { transform: translateY(1px) }
 .back:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px }
+
+/* preview image sizing */
+.preview { margin-top:8px }
+.preview img { display:block; max-width:320px; max-height:240px; width:auto; height:auto; border-radius:8px; object-fit:cover }
 </style>

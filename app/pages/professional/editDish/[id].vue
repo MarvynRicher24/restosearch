@@ -43,6 +43,7 @@
 import { ref, onMounted } from 'vue'
 import { useRouter, useRoute } from '#app'
 import { useAuth } from '../../../composables/useAuth'
+import type { Dish } from '../../../../types'
 
 const router = useRouter()
 const route = useRoute()
@@ -67,7 +68,7 @@ onMounted(async () => {
 
   // try to load dish from server custom list
   try {
-    const server = await $fetch('/api/dishes_custom').catch(() => null)
+    const server = await $fetch('/api/professional/dishes_custom').catch(() => null)
     const arr = Array.isArray(server) ? server : []
     const found = arr.find((d: any) => d.id === id)
     if (found) {
@@ -107,7 +108,7 @@ function cancel() {
   router.push('/professional/dishes')
 }
 
-function onFileChange() {
+async function onFileChange() {
   const el = fileInput.value
   const f = el?.files?.[0]
   if (!f) return
@@ -116,16 +117,43 @@ function onFileChange() {
     message.value = 'Format non supporté — utilisez webp ou jpeg.'
     return
   }
-  const reader = new FileReader()
-  reader.onload = () => {
-    const result = reader.result as string
-    preview.value = result
-    imageData.value = result
+  try {
+    const resized = await resizeImageFile(f, 1024, 1024, 0.8)
+    preview.value = resized
+    imageData.value = resized
+  } catch (err) {
+    message.value = 'Impossible de traiter l\'image.'
   }
-  reader.onerror = () => {
-    message.value = 'Impossible de lire le fichier.'
-  }
-  reader.readAsDataURL(f)
+}
+
+async function resizeImageFile(file: File, maxWidth = 1024, maxHeight = 1024, quality = 0.8) {
+  const dataUrl: string = await new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => resolve(reader.result as string)
+    reader.onerror = () => reject(new Error('read error'))
+    reader.readAsDataURL(file)
+  })
+
+  const img: HTMLImageElement = await new Promise((resolve, reject) => {
+    const image = new Image()
+    image.onload = () => resolve(image)
+    image.onerror = () => reject(new Error('image load error'))
+    image.src = dataUrl
+  })
+
+  const ratio = Math.min(1, maxWidth / img.width, maxHeight / img.height)
+  const targetW = Math.max(1, Math.round(img.width * ratio))
+  const targetH = Math.max(1, Math.round(img.height * ratio))
+
+  const canvas = document.createElement('canvas')
+  canvas.width = targetW
+  canvas.height = targetH
+  const ctx = canvas.getContext('2d')
+  if (!ctx) throw new Error('canvas context not available')
+  ctx.drawImage(img, 0, 0, targetW, targetH)
+
+  const outType = file.type === 'image/jpeg' ? 'image/jpeg' : 'image/webp'
+  return canvas.toDataURL(outType, quality)
 }
 
 async function submit() {
@@ -140,7 +168,7 @@ async function submit() {
   }
 
   // build updated object
-  const updated: any = {
+  const updated: Dish = {
     id,
     name: name.value,
     price: Number(price.value),

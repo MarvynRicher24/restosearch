@@ -32,6 +32,7 @@
                 <div class="muted pro-email">{{ p.email }}</div>
               </div>
               <div class="pro-actions">
+                <button class="btn subtle" @click="goEdit(p)" style="margin-right:8px">Modifier</button>
                 <button class="btn delete" @click="confirmDelete(p)">Supprimer</button>
               </div>
             </li>
@@ -150,6 +151,11 @@ onMounted(() => {
 function doLogout() {
   logout()
   router.push('/')
+}
+
+function goEdit(p: any) {
+  if (!p || !p.email) return
+  router.push(`/admin/editPro/${encodeURIComponent(p.email)}`)
 }
 
 function confirmDelete(pro: any) {
