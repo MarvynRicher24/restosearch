@@ -9,11 +9,9 @@
 
         <div class="info">
           <h1>{{ restaurant.name }}</h1>
-          <p class="muted">
-            {{ restaurant.location }} • {{ restaurant.cuisine }}
-          </p>
+          <p class="muted">{{ restaurant.location }}</p>
           <p class="lead">{{ restaurant.short }}</p>
-          <div class="meta">⭐ {{ restaurant.rating }}</div>
+          
         </div>
       </div>
 
@@ -103,6 +101,19 @@ restaurant.value = rests.find((r: Rest) => r.id === id) ?? null;
 
 const map = (dishesMap.value || {}) as Record<string, Dish[]>;
   dishes.value = map[id] ?? [];
+  // also include any custom dishes created by professionals (ownerId === restaurant id)
+  try {
+    const custom = await $fetch('/api/professional/dishes_custom').catch(() => [])
+    const arr = Array.isArray(custom) ? custom : []
+    const extras = arr.filter((dd: any) => dd.ownerId === id)
+    // merge, avoiding duplicates by id
+    const existingIds = new Set(dishes.value.map((x: any) => x.id))
+    for (const e of extras) {
+      if (!existingIds.has(e.id)) dishes.value.push(e)
+    }
+  } catch (e) {
+    // ignore
+  }
 function formatPrice(p: number) {
   return typeof p === "number" ? p.toFixed(2) + " €" : p;
 }

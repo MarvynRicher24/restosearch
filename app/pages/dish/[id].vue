@@ -79,7 +79,7 @@ type Rest = {
   rating?: number;
   short?: string;
 };
-type Dish = { id: string; name: string; price: number; image: string };
+type Dish = any // support custom dishes with description/ownerId
 
 const route = useRoute();
 const router = useRouter();
@@ -113,6 +113,34 @@ for (const [rid, arr] of Object.entries(dishesMap)) {
     break;
   }
 }
+
+// if not found in standard map, look into professional custom dishes (server) then localStorage
+if (!found) {
+  try {
+    const custom = await $fetch('/api/professional/dishes_custom').catch(() => [])
+    const arr = Array.isArray(custom) ? custom : []
+    const f = arr.find((d: any) => d.id === id)
+    if (f) {
+      found = f
+      foundRestaurantId = f.ownerId
+    }
+  } catch (e) {}
+}
+
+if (!found) {
+  try {
+    const raw = localStorage.getItem('resto_dishes_custom') || '[]'
+    const arr = JSON.parse(raw || '[]')
+    if (Array.isArray(arr)) {
+      const f = arr.find((d: any) => d.id === id)
+      if (f) {
+        found = f
+        foundRestaurantId = f.ownerId
+      }
+    }
+  } catch (e) {}
+}
+
 dish.value = found ?? null;
 
 if (foundRestaurantId) {
@@ -121,6 +149,14 @@ if (foundRestaurantId) {
   more.value = (dishesMap[foundRestaurantId] || []).filter(
     (x: Dish) => x.id !== id
   );
+  // also add custom dishes from professional list to "more"
+  try {
+    const custom = await $fetch('/api/professional/dishes_custom').catch(() => [])
+    const arr = Array.isArray(custom) ? custom : []
+    const extras = arr.filter((dd: any) => dd.ownerId === foundRestaurantId && dd.id !== id)
+    const existing = new Set(more.value.map((m: any) => m.id))
+    for (const e of extras) if (!existing.has(e.id)) more.value.push(e)
+  } catch (e) {}
 }
 
 function formatPrice(p: any) {

@@ -25,6 +25,20 @@
     "postalCode": "18320",
     "city": "cook city",
     "createdAt": 1761735220817,
-    "image": "/uploads/professional/p1761735220817-1763451706771.jpg"
+    "image": "/uploads/professional/p1761735220817-1763451706771.jpg",
+    "description": "grehiue niukg eaiuhefzo fzihenfg ze"
+  },
+  {
+    "id": "p1763460333961",
+    "name": "restaurant dos",
+    "email": "pro2@hotmail.fr",
+    "password": "marvyn",
+    "role": "professional",
+    "address": "rue du dos",
+    "postalCode": "74350",
+    "city": "cruseilles",
+    "createdAt": 1763460333961,
+    "description": "LA ou l'on se regale comme jamais",
+    "image": "/uploads/professional/p1763460333961-1763461430226.jpg"
   }
 ]

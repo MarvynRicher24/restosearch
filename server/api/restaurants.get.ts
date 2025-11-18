@@ -3,6 +3,46 @@ import fs from "fs/promises";
 import path from "path";
 
 export default defineEventHandler(async () => {
+  // Prefer to expose professional users (created by admin) as "restaurants" on the index.
+  // Each professional user can add restaurant info (name, address, city, image, description...).
+  try {
+    const usersFile = path.join(process.cwd(), "public", "data", "users.json");
+    const raw = await fs.readFile(usersFile, "utf-8");
+    const users = JSON.parse(raw || "[]")
+    const pros = Array.isArray(users)
+      ? users.filter((u: any) => u && u.role === 'professional')
+      : []
+
+    const mapped = pros.map((u: any) => {
+      const name = u.restaurant || u.restaurantName || u.name || ''
+      const image = u.image || ''
+      const locationParts = []
+      if (u.city) locationParts.push(u.city)
+      if (u.address) locationParts.push(u.address)
+      const location = locationParts.join(', ')
+      const cuisine = u.cuisine || ''
+      const rating = u.rating || undefined
+      const short = u.description || u.bio || u.short || ''
+      return {
+        id: u.id || u.email || name,
+        name,
+        image,
+        location,
+        cuisine,
+        rating,
+        short,
+        createdAt: u.createdAt || null
+      }
+    })
+
+    // if we found professionals, return them; otherwise fallback to static restaurants.json
+    if (mapped.length > 0) return mapped
+
+  } catch (err) {
+    // continue to fallback
+  }
+
+  // fallback: return packaged restaurants.json
   try {
     const file = path.join(process.cwd(), "public", "data", "restaurants.json");
     const content = await fs.readFile(file, "utf-8");

@@ -2,7 +2,6 @@
   <article class="card">
     <div class="card-media">
       <img :src="props.restaurant.image" :alt="props.restaurant.name" />
-      <div class="badge">{{ props.restaurant.cuisine }}</div>
     </div>
 
     <div class="card-body">
@@ -11,7 +10,6 @@
       <p class="desc">{{ props.restaurant.short }}</p>
 
       <div class="card-footer">
-        <div class="rating">⭐ {{ props.restaurant.rating ?? "—" }}</div>
         <NuxtLink :to="`/restaurant/${props.restaurant.id}`" class="view-btn"
           >Voir le resto</NuxtLink
         >
@@ -62,16 +60,6 @@ const props = defineProps<Props>();
   height: 100%;
   object-fit: cover;
   display: block;
-}
-.badge {
-  position: absolute;
-  left: 12px;
-  top: 12px;
-  background: var(--accent);
-  color: #fff;
-  padding: 6px 10px;
-  border-radius: 999px;
-  font-size: 12px;
 }
 .card-body {
   padding: 14px;
