@@ -44,7 +44,9 @@ import { useRouter } from '#app'
 
 const router = useRouter()
 const { user, isLogged } = useAuth()
-const orders = ref<any[]>([])
+type OrderItem = { id?: string; name?: string; price?: number; qty?: number; restaurant?: { id?: string; name?: string } }
+type Order = { id?: string; date?: string; items: OrderItem[]; total?: number; count?: number }
+const orders = ref<Order[]>([])
 
 onMounted(() => {
   if (!isLogged.value) {
@@ -59,14 +61,14 @@ function goBack() {
   router.push('/user/dashboard')
 }
 
-function formatPrice(p: any) {
-  return typeof p === 'number' ? p.toFixed(2) + ' €' : p
+function formatPrice(p: number | undefined) {
+  return typeof p === 'number' ? p.toFixed(2) + ' €' : String(p ?? '-')
 }
-function formatDate(d: string) {
+function formatDate(d?: string) {
   try {
-    return new Date(d).toLocaleString()
+    return d ? new Date(d).toLocaleString() : ''
   } catch (e) {
-    return d
+    return String(d ?? '')
   }
 }
 </script>

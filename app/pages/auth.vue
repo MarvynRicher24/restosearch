@@ -39,37 +39,38 @@ import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from '#app'
 import { useAuth } from '../composables/useAuth'
 import { useCart } from '../composables/useCart'
+import type { UserWithPassword } from '../../types'
 
 const router = useRouter()
 const mode = ref<'login'|'register'>('login')
 
 const form = reactive({ email: '', password: '', pseudo: '' })
 const message = ref('')
-const users = ref<Array<Record<string, any>>>([])
+const users = ref<UserWithPassword[]>([])
 
 async function loadUsers() {
   try {
     const res = await $fetch('/data/users.json')
     const staticUsers = Array.isArray(res) ? res : []
     // charger les utilisateurs créés depuis l'admin (localStorage)
-    let merged = new Map<string, any>()
+    let merged = new Map<string, UserWithPassword>()
     try {
       // start with static users
-      for (const u of staticUsers) {
+      for (const u of staticUsers as UserWithPassword[]) {
         if (u && u.email) merged.set((u.email || '').toLowerCase(), u)
       }
       const customRaw = localStorage.getItem('resto_users_custom') || '[]'
       const custom = JSON.parse(customRaw || '[]')
       if (Array.isArray(custom) && custom.length) {
         // custom users override static entries with same email
-        for (const u of custom) {
+        for (const u of custom as UserWithPassword[]) {
           if (u && u.email) merged.set((u.email || '').toLowerCase(), u)
         }
       }
       users.value = Array.from(merged.values())
     } catch (e) {
       // fallback to static list
-      users.value = staticUsers
+      users.value = staticUsers as UserWithPassword[]
     }
   } catch (e) {
     users.value = []
@@ -108,11 +109,11 @@ async function submit() {
   message.value = user.role === 'admin' ? 'Connecté en tant qu\'administrateur.' : (user.role === 'professional' ? 'Connecté en tant que professionnel.' : 'Connecté en tant qu\'utilisateur.')
   } else {
     // Inscription simulée côté client (le fichier JSON public n'est pas modifié)
-    const newUser = {
+    const newUser: UserWithPassword = {
       id: `u${Date.now()}`,
-      email,
+      email: email as string,
       password: pwd,
-      name: form.pseudo && form.pseudo.trim() !== '' ? form.pseudo.trim() : email.split('@')[0],
+      name: form.pseudo && form.pseudo.trim() !== '' ? form.pseudo.trim() : (email as string).split('@')[0],
       role: 'user',
       createdAt: Date.now()
     }

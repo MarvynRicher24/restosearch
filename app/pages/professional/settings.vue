@@ -54,6 +54,7 @@
 import { ref, onMounted, watch } from 'vue'
 import { useRouter } from '#app'
 import { useAuth } from '../../composables/useAuth'
+import type { User, UserWithPassword } from '../../../types'
 
 const router = useRouter()
 const { user, token, isLogged, setSession } = useAuth()
@@ -94,11 +95,11 @@ onMounted(() => {
 				if (Array.isArray(arr)) {
 					const ownerKey = (user.value?.id) || (user.value?.email) || null
 					if (ownerKey) {
-						const found = arr.find((u: any) => (u.id && u.id === user.value?.id) || (u.email && u.email === user.value?.email))
-						if (found && found.image) {
-							preview.value = found.image
-							imageData.value = found.image
-						}
+						const found = (arr as UserWithPassword[]).find((u) => (u.id && u.id === user.value?.id) || (u.email && u.email === user.value?.email))
+							if (found && found.image) {
+								preview.value = found.image
+								imageData.value = found.image
+							}
 					}
 				}
 			} catch (e) {}
@@ -132,8 +133,8 @@ async function submit() {
 		return
 	}
 
-	const updated: any = {
-		...user.value,
+	const updated: UserWithPassword = {
+		...(user.value as User),
 		// consolidate to a single `name` field for the restaurant
 		name: restaurantName.value,
 		address: address.value,
@@ -148,8 +149,8 @@ async function submit() {
 		// Try server update
 		try {
 			const res = await $fetch('/api/professional/updateProfile', { method: 'POST', body: updated })
-			if (res && (res as any).user) {
-				const serverUser = (res as any).user
+			const serverUser = (res as { user?: UserWithPassword })?.user
+			if (serverUser) {
 				setSession(serverUser, token?.value || '')
 				message.value = 'Modifications enregistrées sur le serveur.'
 				// update local custom list if present
@@ -157,7 +158,7 @@ async function submit() {
 					const raw = localStorage.getItem('resto_users_custom') || '[]'
 					const arr = JSON.parse(raw || '[]')
 					if (Array.isArray(arr)) {
-						const idx = arr.findIndex((u: any) => (u.id && user.value?.id && u.id === user.value.id) || (u.email && u.email === user.value?.email))
+						const idx = (arr as UserWithPassword[]).findIndex((u) => (u.id && user.value?.id && u.id === user.value.id) || (u.email && u.email === user.value?.email))
 						if (idx !== -1) {
 							arr[idx] = { ...arr[idx], ...serverUser }
 							localStorage.setItem('resto_users_custom', JSON.stringify(arr))
@@ -177,7 +178,7 @@ async function submit() {
 			const raw = localStorage.getItem('resto_users_custom') || '[]'
 			const arr = JSON.parse(raw || '[]')
 			if (Array.isArray(arr)) {
-				const idx = arr.findIndex((u: any) => (u.id && user.value?.id && u.id === user.value.id) || (u.email && u.email === user.value?.email))
+				const idx = (arr as UserWithPassword[]).findIndex((u) => (u.id && user.value?.id && u.id === user.value.id) || (u.email && u.email === user.value?.email))
 				if (idx !== -1) {
 					arr[idx] = { ...arr[idx], ...updated }
 					localStorage.setItem('resto_users_custom', JSON.stringify(arr))

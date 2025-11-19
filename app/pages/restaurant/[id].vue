@@ -55,23 +55,13 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
-
-type Rest = {
-  id: string;
-  name: string;
-  image: string;
-  location: string;
-  cuisine: string;
-  rating?: number;
-  short?: string;
-};
-type Dish = { id: string; name: string; price: number; image: string };
+import type { Restaurant, Dish } from '../../../types'
 
 const route = useRoute();
 const router = useRouter();
 const id = String(route.params.id || "");
 
-const restaurant = ref<Rest | null>(null);
+const restaurant = ref<Restaurant | null>(null);
 const dishes = ref<Dish[]>([]);
 const searchTerm = ref("");
 const debounced = ref("");
@@ -96,26 +86,26 @@ const { data: dishesMap } = await useAsyncData("dishesMap", () =>
   $fetch("/api/dishes")
 );
 
-const rests = (restData.value || []) as Rest[];
-restaurant.value = rests.find((r: Rest) => r.id === id) ?? null;
+const rests = (restData.value || []) as Restaurant[];
+restaurant.value = rests.find((r: Restaurant) => r.id === id) ?? null;
 
 const map = (dishesMap.value || {}) as Record<string, Dish[]>;
   dishes.value = map[id] ?? [];
   // also include any custom dishes created by professionals (ownerId === restaurant id)
   try {
     const custom = await $fetch('/api/professional/dishes_custom').catch(() => [])
-    const arr = Array.isArray(custom) ? custom : []
-    const extras = arr.filter((dd: any) => dd.ownerId === id)
+    const arr = Array.isArray(custom) ? (custom as Dish[]) : []
+    const extras = arr.filter((dd) => dd && dd.ownerId === id)
     // merge, avoiding duplicates by id
-    const existingIds = new Set(dishes.value.map((x: any) => x.id))
+    const existingIds = new Set(dishes.value.map((x: Dish) => x.id))
     for (const e of extras) {
       if (!existingIds.has(e.id)) dishes.value.push(e)
     }
   } catch (e) {
     // ignore
   }
-function formatPrice(p: number) {
-  return typeof p === "number" ? p.toFixed(2) + " €" : p;
+function formatPrice(p: number | undefined) {
+  return typeof p === "number" ? p.toFixed(2) + " €" : String(p ?? "-");
 }
 
 function goBack() {

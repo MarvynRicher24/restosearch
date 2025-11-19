@@ -94,8 +94,8 @@ const profileRoute = computed(() => {
   return '/user/dashboard'
 })
 
-function formatPrice(p: any) {
-  return typeof p === 'number' ? p.toFixed(2) + ' €' : p
+function formatPrice(p: number | undefined) {
+  return typeof p === 'number' ? p.toFixed(2) + ' €' : String(p ?? '-')
 }
 
 function toggleDropdown(e?: Event) {

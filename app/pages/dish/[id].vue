@@ -69,24 +69,14 @@ import { useRouter, useRoute } from '#app'
 import { useAuth } from '../../composables/useAuth'
 import { useCart } from '../../composables/useCart'
 import { useToast } from '../../composables/useToast'
-
-type Rest = {
-  id: string;
-  name: string;
-  image: string;
-  location: string;
-  cuisine: string;
-  rating?: number;
-  short?: string;
-};
-type Dish = any // support custom dishes with description/ownerId
+import type { Restaurant, Dish } from '../../../types'
 
 const route = useRoute();
 const router = useRouter();
 const id = String(route.params.id || "");
 
 const dish = ref<Dish | null>(null);
-const restaurant = ref<Rest | null>(null);
+const restaurant = ref<Restaurant | null>(null);
 const more = ref<Dish[]>([]);
 const showAuthModal = ref(false)
 const { isLogged } = useAuth()
@@ -99,7 +89,7 @@ const { data: dishesMapData } = await useAsyncData("dishesMap", () =>
   $fetch("/api/dishes")
 );
 
-const rests = (restData.value || []) as Rest[];
+const rests = (restData.value || []) as Restaurant[];
 const dishesMap = (dishesMapData.value || {}) as Record<string, Dish[]>;
 
 // Cherche le plat dans la map
@@ -118,12 +108,12 @@ for (const [rid, arr] of Object.entries(dishesMap)) {
 if (!found) {
   try {
     const custom = await $fetch('/api/professional/dishes_custom').catch(() => [])
-    const arr = Array.isArray(custom) ? custom : []
-    const f = arr.find((d: any) => d.id === id)
-    if (f) {
-      found = f
-      foundRestaurantId = f.ownerId
-    }
+    const arr = Array.isArray(custom) ? (custom as Dish[]) : []
+      const f = arr.find((d) => d && d.id === id)
+      if (f) {
+        found = f
+        foundRestaurantId = f.ownerId
+      }
   } catch (e) {}
 }
 
@@ -132,7 +122,7 @@ if (!found) {
     const raw = localStorage.getItem('resto_dishes_custom') || '[]'
     const arr = JSON.parse(raw || '[]')
     if (Array.isArray(arr)) {
-      const f = arr.find((d: any) => d.id === id)
+      const f = (arr as Dish[]).find((d) => d && d.id === id)
       if (f) {
         found = f
         foundRestaurantId = f.ownerId
@@ -144,23 +134,22 @@ if (!found) {
 dish.value = found ?? null;
 
 if (foundRestaurantId) {
-  restaurant.value =
-    rests.find((r: Rest) => r.id === foundRestaurantId) ?? null;
+  restaurant.value = rests.find((r: Restaurant) => r.id === foundRestaurantId) ?? null;
   more.value = (dishesMap[foundRestaurantId] || []).filter(
     (x: Dish) => x.id !== id
   );
   // also add custom dishes from professional list to "more"
   try {
     const custom = await $fetch('/api/professional/dishes_custom').catch(() => [])
-    const arr = Array.isArray(custom) ? custom : []
-    const extras = arr.filter((dd: any) => dd.ownerId === foundRestaurantId && dd.id !== id)
-    const existing = new Set(more.value.map((m: any) => m.id))
+    const arr = Array.isArray(custom) ? (custom as Dish[]) : []
+    const extras = arr.filter((dd) => dd && dd.ownerId === foundRestaurantId && dd.id !== id)
+    const existing = new Set(more.value.map((m: Dish) => m.id))
     for (const e of extras) if (!existing.has(e.id)) more.value.push(e)
   } catch (e) {}
 }
 
-function formatPrice(p: any) {
-  return typeof p === "number" ? p.toFixed(2) + " €" : p;
+function formatPrice(p: number | undefined) {
+  return typeof p === "number" ? p.toFixed(2) + " €" : String(p ?? "-");
 }
 function addToCart() {
   // si non connecté, ouvrir modal invitant à se connecter

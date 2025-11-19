@@ -98,13 +98,13 @@ async function loadDishes() {
       const server = await $fetch('/api/professional/dishes_custom').catch(() => null)
       const arr = Array.isArray(server) ? server : []
       const ownerKey = user.value?.id || user.value?.email || null
-      dishes.value = arr.filter((d: any) => (ownerKey ? d.ownerId === ownerKey : false))
+        dishes.value = arr.filter((d: Dish) => (ownerKey ? d.ownerId === ownerKey : false))
       // also merge local fallback entries not yet on server
       try {
         const raw = localStorage.getItem('resto_dishes_custom') || '[]'
         const localArr = JSON.parse(raw || '[]')
         if (Array.isArray(localArr)) {
-          const missing = localArr.filter((ld: any) => !arr.find((s: any) => s.id === ld.id) && (ownerKey ? ld.ownerId === ownerKey : false))
+           const missing = localArr.filter((ld: Dish) => !arr.find((s: Dish) => s.id === ld.id) && (ownerKey ? ld.ownerId === ownerKey : false))
           dishes.value = dishes.value.concat(missing)
         }
       } catch (e) {}
@@ -114,7 +114,7 @@ async function loadDishes() {
       const arr = JSON.parse(raw || '[]')
       if (Array.isArray(arr)) {
         const ownerKey = user.value?.id || user.value?.email || null
-        dishes.value = arr.filter((d: any) => {
+          dishes.value = arr.filter((d: Dish) => {
           return ownerKey ? (d.ownerId === ownerKey) : false
         })
       } else {
@@ -152,8 +152,8 @@ function goEdit(dish: Dish) {
   router.push(`/professional/editDish/${dish.id}`)
 }
 
-function formatPrice(p: any) {
-  return typeof p === 'number' ? p.toFixed(2) + ' €' : p
+function formatPrice(p?: number | string) {
+  return typeof p === 'number' ? p.toFixed(2) + ' €' : String(p ?? '')
 }
 
 function openConfirm(dish: Dish) {
@@ -178,7 +178,7 @@ async function doDeleteConfirmed() {
         const raw = localStorage.getItem('resto_dishes_custom') || '[]'
         const arr = JSON.parse(raw || '[]')
         const ownerKey = user.value?.id || user.value?.email || null
-        const remaining = (Array.isArray(arr) ? arr : []).filter((it: any) => !(it.id === id && (ownerKey ? it.ownerId === ownerKey : false)))
+        const remaining = (Array.isArray(arr) ? arr : []).filter((it: Dish) => !(it.id === id && (ownerKey ? it.ownerId === ownerKey : false)))
         localStorage.setItem('resto_dishes_custom', JSON.stringify(remaining))
       } catch (e) {}
     } catch (err) {
@@ -186,9 +186,9 @@ async function doDeleteConfirmed() {
       try {
         const raw = localStorage.getItem('resto_dishes_custom') || '[]'
         const arr = JSON.parse(raw || '[]')
-        if (Array.isArray(arr)) {
+          if (Array.isArray(arr)) {
           const ownerKey = user.value?.id || user.value?.email || null
-          const remaining = arr.filter((it: any) => !(it.id === id && (ownerKey ? it.ownerId === ownerKey : false)))
+          const remaining = (arr as Dish[]).filter((it) => !(it.id === id && (ownerKey ? it.ownerId === ownerKey : false)))
           localStorage.setItem('resto_dishes_custom', JSON.stringify(remaining))
         }
       } catch (e) {}

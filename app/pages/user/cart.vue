@@ -9,7 +9,7 @@
 				<div v-for="(it, idx) in items" :key="idx" class="cart-item">
 					<div class="left">
 						<div class="thumb-wrap">
-							<img v-if="(it as any).image" :src="(it as any).image" alt="" class="thumb" />
+							<img v-if="(it as CartItem).image" :src="(it as CartItem).image" alt="" class="thumb" />
 							<div v-else class="thumb placeholder"></div>
 						</div>
 						<div>
@@ -56,6 +56,9 @@ import { useRouter } from '#app'
 import { useAuth } from '../../composables/useAuth'
 import { useCart } from '../../composables/useCart'
 import { useOrders } from '../../composables/useOrders'
+import type { Dish } from '../../../types'
+
+type CartItem = Partial<Dish> & { qty?: number; restaurant?: { id?: string; name?: string } }
 
 const router = useRouter()
 const { user, isLogged, logout } = useAuth()
@@ -65,21 +68,21 @@ if (!isLogged.value) {
 	router.push('/auth')
 }
 
-function formatPrice(p: any) {
-	return typeof p === 'number' ? p.toFixed(2) + ' €' : p
+function formatPrice(p?: number | string) {
+	return typeof p === 'number' ? p.toFixed(2) + ' €' : String(p ?? '')
 }
 
-function increaseQty(it: any) {
+function increaseQty(it: CartItem) {
 	const next = (it.qty || 1) + 1
 	updateQty(it.id, it.restaurant?.id, next)
 }
 
-function decreaseQty(it: any) {
+function decreaseQty(it: CartItem) {
 	const next = (it.qty || 1) - 1
 	updateQty(it.id, it.restaurant?.id, next)
 }
 
-function removeItem(it: any) {
+function removeItem(it: CartItem) {
 	remove(it.id, it.restaurant?.id)
 }
 
@@ -94,7 +97,7 @@ function checkout() {
 		return
 	}
 	const orders = useOrders()
-		const snapshot = (items.value || []).map((i: any) => ({ id: i.id, name: i.name, price: i.price, qty: i.qty, restaurant: i.restaurant }))
+		const snapshot = (items.value || []).map((i: CartItem) => ({ id: i.id, name: i.name, price: i.price, qty: i.qty, restaurant: i.restaurant }))
 	const o = orders.add({ items: snapshot, total: total.value, count: count.value })
 	// clear cart
 	clear()

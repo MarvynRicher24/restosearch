@@ -52,7 +52,7 @@
 import { ref, onMounted } from 'vue'
 import { useRouter, useRoute } from '#app'
 import { useAuth } from '../../../composables/useAuth'
-import type { User } from '../../../../types'
+import type { User, UserWithPassword } from '../../../../types'
 
 const router = useRouter()
 const route = useRoute()
@@ -81,7 +81,7 @@ onMounted(async () => {
   try {
     const base = await $fetch('/data/users.json').catch(() => [])
     const baseArr = Array.isArray(base) ? base : []
-    const foundBase = baseArr.find((u: any) => (u.email || '') === email.value)
+    const foundBase = baseArr.find((u: User) => (u.email || '') === email.value)
     if (foundBase) {
       populate(foundBase)
       loaded.value = true
@@ -94,7 +94,7 @@ onMounted(async () => {
     const raw = localStorage.getItem('resto_users_custom') || '[]'
     const arr = JSON.parse(raw || '[]')
     if (Array.isArray(arr)) {
-      const found = arr.find((u: any) => (u.email || '') === email.value)
+      const found = arr.find((u: UserWithPassword) => (u.email || '') === email.value)
       if (found) populate(found)
     }
   } catch (e) {}
@@ -102,7 +102,7 @@ onMounted(async () => {
   loaded.value = true
 })
 
-function populate(u: any) {
+function populate(u: UserWithPassword) {
   name.value = u.name || ''
   address.value = u.address || ''
   postalCode.value = u.postalCode || ''
@@ -121,7 +121,7 @@ async function submit() {
     return
   }
 
-  const updated: any = {
+  const updated: UserWithPassword = {
     id: `p${Date.now()}`,
     name: name.value,
     email: email.value,
@@ -134,7 +134,7 @@ async function submit() {
 
   // preserve password if provided
   if (password.value && password.value.length >= 6) {
-    (updated as any).password = password.value
+    updated.password = password.value
   }
 
   try {
@@ -142,7 +142,7 @@ async function submit() {
     const raw = localStorage.getItem('resto_users_custom') || '[]'
     const arr = JSON.parse(raw || '[]')
     if (Array.isArray(arr)) {
-      const idx = arr.findIndex((u: any) => (u.email || '') === email.value)
+      const idx = arr.findIndex((u: UserWithPassword) => (u.email || '') === email.value)
       if (idx !== -1) arr[idx] = { ...arr[idx], ...updated }
       else arr.push(updated)
       localStorage.setItem('resto_users_custom', JSON.stringify(arr))

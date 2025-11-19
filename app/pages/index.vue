@@ -71,16 +71,8 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, onBeforeUnmount } from "vue";
-// Types locaux (on les redéfinit temporairement)
-interface Restaurant {
-  id: string;
-  name: string;
-  image: string;
-  location: string;
-  cuisine: string;
-  rating?: number;
-  short?: string;
-}
+// Types importés depuis `types` pour un typage centralisé
+import type { Restaurant } from '../../types'
 import RestaurantCard from "~/components/RestaurantCard.vue";
 
 // Configuration SEO
@@ -159,8 +151,8 @@ const paged = computed(() => {
 });
 
 // Debounce: update debouncedQuery / debouncedLocation after typing stops
-let __rs_query_timer: any = null
-let __rs_location_timer: any = null
+let __rs_query_timer: ReturnType<typeof setTimeout> | null = null
+let __rs_location_timer: ReturnType<typeof setTimeout> | null = null
 watch([query, locationQuery], () => {
   if (__rs_query_timer) clearTimeout(__rs_query_timer)
   __rs_query_timer = setTimeout(() => {

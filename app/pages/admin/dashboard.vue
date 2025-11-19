@@ -67,15 +67,19 @@
 import { ref, onMounted, watch, nextTick, onBeforeUnmount } from 'vue'
 import { useRouter } from '#app'
 import { useAuth } from '../../composables/useAuth'
+import type { User } from '../../../types'
+
+// Local user shape including internal _source marker used by admin UI
+type LocalUser = User & { _source?: 'base' | 'custom' }
 
 const router = useRouter()
 const { user, isLogged, isAdmin, logout } = useAuth()
-const professionals = ref<any[]>([])
+const professionals = ref<LocalUser[]>([])
 const loading = ref(false)
 
 // state for confirmation modal
 const showConfirm = ref(false)
-const selectedPro = ref<any>(null)
+const selectedPro = ref<LocalUser | null>(null)
 
 // refs to modal buttons so we can focus them
 const confirmBtn = ref<HTMLButtonElement | null>(null)
@@ -126,13 +130,13 @@ async function loadProfessionals() {
     const removed = JSON.parse(removedRaw || '[]')
 
     // tag source so we can persist deletions correctly
-    const baseTagged = base.map((u: any) => ({ ...u, _source: 'base' }))
-    const customTagged = custom.map((u: any) => ({ ...u, _source: 'custom' }))
+    const baseTagged = (base as User[]).map((u) => ({ ...u, _source: 'base' } as LocalUser))
+    const customTagged = (custom as User[]).map((u) => ({ ...u, _source: 'custom' } as LocalUser))
 
     const all = baseTagged.concat(customTagged)
     professionals.value = all
-      .filter((u: any) => u.role === 'professional')
-      .filter((u: any) => !(u._source === 'base' && removed.includes(u.email)))
+      .filter((u: LocalUser) => u.role === 'professional')
+      .filter((u: LocalUser) => !(u._source === 'base' && removed.includes(u.email)))
   } catch (e) {
     professionals.value = []
   } finally {
@@ -153,12 +157,12 @@ function doLogout() {
   router.push('/')
 }
 
-function goEdit(p: any) {
+function goEdit(p: LocalUser) {
   if (!p || !p.email) return
   router.push(`/admin/editPro/${encodeURIComponent(p.email)}`)
 }
 
-function confirmDelete(pro: any) {
+function confirmDelete(pro: LocalUser) {
   selectedPro.value = pro
   showConfirm.value = true
 }
@@ -180,7 +184,7 @@ async function doDeleteConfirmed() {
       try {
         const customRaw = localStorage.getItem('resto_users_custom') || '[]'
         const custom = JSON.parse(customRaw || '[]')
-        const remaining = custom.filter((u: any) => u.email !== email)
+        const remaining = (custom as User[]).filter((u) => u.email !== email)
         localStorage.setItem('resto_users_custom', JSON.stringify(remaining))
       } catch (e) {}
       try {
@@ -195,7 +199,7 @@ async function doDeleteConfirmed() {
         // remove from custom storage
         const customRaw = localStorage.getItem('resto_users_custom') || '[]'
         const custom = JSON.parse(customRaw || '[]')
-        const remaining = custom.filter((u: any) => u.email !== email)
+        const remaining = (custom as User[]).filter((u) => u.email !== email)
         localStorage.setItem('resto_users_custom', JSON.stringify(remaining))
       } else {
         // mark as removed so base file still unchanged
@@ -209,7 +213,7 @@ async function doDeleteConfirmed() {
     }
 
     // update in-memory list
-    professionals.value = professionals.value.filter((p: any) => p.email !== email)
+    professionals.value = professionals.value.filter((p) => p.email !== email)
   } finally {
     cancelDelete()
   }

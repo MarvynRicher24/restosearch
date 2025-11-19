@@ -70,7 +70,7 @@ onMounted(async () => {
   try {
     const server = await $fetch('/api/professional/dishes_custom').catch(() => null)
     const arr = Array.isArray(server) ? server : []
-    const found = arr.find((d: any) => d.id === id)
+    const found = arr.find((d: Dish) => d.id === id)
     if (found) {
       populate(found)
       loaded.value = true
@@ -83,7 +83,7 @@ onMounted(async () => {
     const raw = localStorage.getItem('resto_dishes_custom') || '[]'
     const arr = JSON.parse(raw || '[]')
     if (Array.isArray(arr)) {
-      const found = arr.find((d: any) => d.id === id)
+      const found = arr.find((d: Dish) => d.id === id)
       if (found) {
         populate(found)
       }
@@ -92,7 +92,7 @@ onMounted(async () => {
   loaded.value = true
 })
 
-function populate(d: any) {
+function populate(d: Dish) {
   name.value = d.name || ''
   price.value = d.price || null
   description.value = d.description || ''
@@ -190,7 +190,7 @@ async function submit() {
       const raw = localStorage.getItem('resto_dishes_custom') || '[]'
       const arr = JSON.parse(raw || '[]')
       if (Array.isArray(arr)) {
-        const idx = arr.findIndex((it: any) => it.id === id)
+        const idx = arr.findIndex((it: Dish) => it.id === id)
         if (idx !== -1) arr[idx] = { ...arr[idx], ...updated }
         else arr.push(updated)
         localStorage.setItem('resto_dishes_custom', JSON.stringify(arr))

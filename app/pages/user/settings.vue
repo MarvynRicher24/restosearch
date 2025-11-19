@@ -37,6 +37,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useAuth } from '../../composables/useAuth'
+import type { UserWithPassword } from '../../../types'
 import { useRouter } from '#app'
 
 const router = useRouter()
@@ -68,10 +69,10 @@ function save() {
   }
 
   // build new user object, keep existing token
-  const newUser = { ...user.value, name: pseudo.value, email: email.value }
+  const newUser: UserWithPassword = { ...(user.value || {}), name: pseudo.value, email: email.value }
   if (password.value) {
     // store password field if your fake auth uses it - otherwise ignore
-    ;(newUser as any).password = password.value
+    newUser.password = password.value
   }
 
   // update session (persists to localStorage via setSession)

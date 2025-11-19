@@ -48,8 +48,8 @@ import { useCart } from '../../composables/useCart'
 
 const { items, total } = useCart()
 
-function formatPrice(p: any) {
-	return typeof p === 'number' ? p.toFixed(2) + ' €' : p
+function formatPrice(p: number | undefined) {
+	return typeof p === 'number' ? p.toFixed(2) + ' €' : String(p ?? '-')
 }
 
 const router = useRouter()
