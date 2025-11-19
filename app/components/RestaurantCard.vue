@@ -19,21 +19,9 @@
 </template>
 
 <script setup lang="ts">
-interface Restaurant {
-  id: string;
-  name: string;
-  image: string;
-  location: string;
-  cuisine: string;
-  rating?: number;
-  short?: string;
-}
+import type { Restaurant } from '../../types'
 
-interface Props {
-  restaurant: Restaurant;
-}
-
-const props = defineProps<Props>();
+const props = defineProps<{ restaurant: Restaurant }>()
 </script>
 
 <style scoped>

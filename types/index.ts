@@ -46,5 +46,5 @@ export interface SearchFilters {
   sortBy: "relevance" | "rating" | "name";
 }
 
-// Re-export runtime helpers and utility types
+// Re-export runtime helpers and utility types from the local `types/utils.ts`.
 export * from './utils'

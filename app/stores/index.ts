@@ -1,9 +1,11 @@
 // app/stores/index.ts
 // Barrel file to expose common state utilities without changing behaviour.
-export { useAuth } from '../composables/useAuth'
-export { useCart } from '../composables/useCart'
-export { useOrders } from '../composables/useOrders'
-export { useToast } from '../composables/useToast'
+import { useAuth } from '../composables/useAuth'
+import { useCart } from '../composables/useCart'
+import { useOrders } from '../composables/useOrders'
+import { useToast } from '../composables/useToast'
+
+export { useAuth, useCart, useOrders, useToast }
 
 export default {
   useAuth,
