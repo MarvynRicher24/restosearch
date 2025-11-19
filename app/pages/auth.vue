@@ -37,6 +37,7 @@
 <script setup lang="ts">
 definePageMeta({ ssr: false })
 import { ref, reactive, onMounted } from 'vue'
+import useSeo from '~/composables/useSeo'
 import { useRouter } from '#app'
 import { useAuth } from '../composables/useAuth'
 import { useCart } from '../composables/useCart'
@@ -48,6 +49,9 @@ const mode = ref<'login'|'register'>('login')
 const form = reactive({ email: '', password: '', pseudo: '' })
 const message = ref('')
 const users = ref<UserWithPassword[]>([])
+
+// mark auth page as not indexable by search engines
+useHead(() => useSeo({ title: 'Connexion - RestoSearch', noindex: true }))
 
 async function loadUsers() {
   try {

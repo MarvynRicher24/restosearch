@@ -158,41 +158,40 @@ if (foundRestaurantId) {
   }
 }
 
-// SEO: titre, meta et JSON-LD dynamiques basés sur le plat chargé
-useHead(() => {
+// SEO: utiliser le composable centralisé pour générer title/meta/og/twitter/json-ld
+import useSeo from '~/composables/useSeo'
+
+const seoInput = computed(() => {
   const d = dish.value
   const r = restaurant.value
   const title = d ? `${d.name} — RestoSearch` : 'Plat — RestoSearch'
-  const description = d?.description || r?.short || ''
-  const ld = d
+  const descriptionRaw = d?.description || r?.short || ''
+  const description = descriptionRaw ? descriptionRaw.slice(0, 160) : ''
+
+  const jsonld = d
     ? {
         '@context': 'https://schema.org',
         '@type': 'Product',
         name: d.name,
         image: d.image || undefined,
         description: description || undefined,
-        offers: d.price != null ? { '@type': 'Offer', price: String(d.price), priceCurrency: 'EUR' } : undefined,
+        offers:
+          d.price != null
+            ? { '@type': 'Offer', price: String(d.price), priceCurrency: 'EUR' }
+            : undefined,
       }
-    : undefined
+    : null
 
   return {
     title,
-    meta: [
-      { name: 'description', content: description || '' },
-      { property: 'og:title', content: d?.name || '' },
-      { property: 'og:description', content: description || '' },
-      { property: 'og:image', content: d?.image || '' },
-    ],
-    script: ld
-      ? [
-          {
-            type: 'application/ld+json',
-            children: JSON.stringify(ld),
-          },
-        ]
-      : [],
+    description,
+    image: d?.image || r?.image || undefined,
+    jsonld,
+    url: process.client ? window.location.href : undefined,
   }
 })
+
+useHead(() => useSeo(seoInput.value))
 
 function formatPrice(p: number | undefined) {
   return typeof p === "number" ? p.toFixed(2) + " €" : String(p ?? "-");

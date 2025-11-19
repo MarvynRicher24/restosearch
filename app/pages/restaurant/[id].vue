@@ -54,7 +54,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, computed } from "vue";
+import useSeo from '~/composables/useSeo'
 import type { Restaurant, Dish } from '../../../types'
 
 import { apiFetch } from '~/services/api'
@@ -110,6 +111,33 @@ const map = (dishesMap.value || {}) as Record<string, Dish[]>;
   } catch (e) {
     console.error('Failed to load professional custom dishes', e)
   }
+
+// SEO dynamic
+const seoInput = computed(() => {
+  const r = restaurant.value
+  const title = r ? `${r.name} — RestoSearch` : 'Restaurant — RestoSearch'
+  const descriptionRaw = r?.short || ''
+  const description = descriptionRaw ? descriptionRaw.slice(0, 160) : ''
+  const jsonld = r
+    ? {
+        '@context': 'https://schema.org',
+        '@type': 'Restaurant',
+        name: r.name,
+        image: r.image || undefined,
+        description: description || undefined,
+        address: r.location || undefined,
+      }
+    : null
+  return {
+    title,
+    description,
+    image: r?.image || undefined,
+    jsonld,
+    url: process.client ? window.location.href : undefined,
+  }
+})
+
+useHead(() => useSeo(seoInput.value))
 function formatPrice(p: number | undefined) {
   return typeof p === "number" ? p.toFixed(2) + " €" : String(p ?? "-");
 }

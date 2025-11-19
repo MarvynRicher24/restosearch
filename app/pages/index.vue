@@ -77,16 +77,22 @@ import RestaurantCard from "~/components/RestaurantCard.vue";
 import { apiFetch } from '~/services/api'
 
 // Configuration SEO
-useHead({
-  title: "RestoSearch - Trouvez votre restaurant idéal",
-  meta: [
-    {
-      name: "description",
-      content:
-        "Recherchez et découvrez les meilleurs restaurants près de chez vous avec filtres par cuisine et localisation.",
+import useSeo from '~/composables/useSeo'
+
+useHead(() =>
+  useSeo({
+    title: 'RestoSearch - Trouvez votre restaurant idéal',
+    description:
+      'Recherchez et découvrez les meilleurs restaurants près de chez vous avec filtres par cuisine et localisation.',
+    image: '/og-image.png',
+    jsonld: {
+      '@context': 'https://schema.org',
+      '@type': 'WebSite',
+      name: 'RestoSearch',
+      url: process.client ? window.location.href : '/',
     },
-  ],
-});
+  })
+)
 
 const query = ref<string>("");
 const locationQuery = ref<string>("");

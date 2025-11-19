@@ -78,8 +78,18 @@ const props = defineProps<{ restaurant: Restaurant }>()
   text-decoration: none;
   padding: 8px 12px;
   border-radius: 10px;
-  border: 1px solid var(--accent);
-  color: var(--accent);
+  background: var(--accent);
+  color: #fff;
+  border: none;
   font-weight: 700;
+  box-shadow: var(--shadow-1);
+}
+.view-btn:focus-visible {
+  outline: 3px solid rgba(var(--accent-rgb), 0.16);
+  outline-offset: 3px;
+}
+.view-btn:hover {
+  filter: brightness(0.95);
+  transform: translateY(-2px) scale(1.02);
 }
 </style>

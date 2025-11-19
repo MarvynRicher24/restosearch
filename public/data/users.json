@@ -26,7 +26,7 @@
     "city": "Annecy",
     "createdAt": 1761735220817,
     "image": "/uploads/professional/p1761735220817-1763479715591.webp",
-    "description": "Meilleur restaurant dans lequel emmener sa femme."
+    "description": "Meilleur restaurant dans lequel se régaler."
   },
   {
     "id": "p1763460333961",
@@ -38,7 +38,7 @@
     "postalCode": "74350",
     "city": "cruseilles",
     "createdAt": 1763460333961,
-    "description": "Ici les meilleurs plats à base de biche",
+    "description": "Ici les meilleurs plats vous dégusterez.",
     "image": "/uploads/professional/p1763460333961-1763541443528.webp"
   }
 ]
