@@ -52,6 +52,8 @@
 </template>
 
 <script setup lang="ts">
+// @ts-ignore - runtime middleware key (string[]/string) is valid in Nuxt meta
+definePageMeta({ middleware: ['auth'] })
 import { useRouter } from '#app'
 import { useAuth } from '../../composables/useAuth'
 import { useCart } from '../../composables/useCart'

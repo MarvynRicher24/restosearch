@@ -35,6 +35,7 @@
 </template>
 
 <script setup lang="ts">
+definePageMeta({ ssr: false })
 import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from '#app'
 import { useAuth } from '../composables/useAuth'

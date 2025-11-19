@@ -35,6 +35,8 @@
 </template>
 
 <script setup lang="ts">
+// @ts-ignore - runtime middleware key (string[]/string) is valid in Nuxt meta
+definePageMeta({ middleware: ['auth'] })
 import { ref, onMounted } from 'vue'
 import { useAuth } from '../../composables/useAuth'
 import type { UserWithPassword } from '../../../types'
@@ -69,7 +71,16 @@ function save() {
   }
 
   // build new user object, keep existing token
-  const newUser: UserWithPassword = { ...(user.value || {}), name: pseudo.value, email: email.value }
+  const ensuredId = (user.value && user.value.id) ? user.value.id : `u${Date.now()}`
+  const ensuredRole = (user.value && user.value.role) ? user.value.role : 'user'
+  const newUser: UserWithPassword = {
+    id: ensuredId,
+    email: email.value,
+    name: pseudo.value,
+    role: ensuredRole,
+    // preserve other optional fields if present
+    ...(user.value || {}),
+  }
   if (password.value) {
     // store password field if your fake auth uses it - otherwise ignore
     newUser.password = password.value

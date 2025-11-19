@@ -41,6 +41,8 @@
 </template>
 
 <script setup lang="ts">
+// @ts-ignore - runtime middleware key (string[]/string) is valid in Nuxt meta
+definePageMeta({ middleware: ['auth'] })
 import { onMounted } from 'vue'
 import { useRouter } from '#app'
 import { useAuth } from '../../composables/useAuth'

@@ -148,6 +148,42 @@ if (foundRestaurantId) {
   } catch (e) {}
 }
 
+// SEO: titre, meta et JSON-LD dynamiques basés sur le plat chargé
+useHead(() => {
+  const d = dish.value
+  const r = restaurant.value
+  const title = d ? `${d.name} — RestoSearch` : 'Plat — RestoSearch'
+  const description = d?.description || r?.short || ''
+  const ld = d
+    ? {
+        '@context': 'https://schema.org',
+        '@type': 'Product',
+        name: d.name,
+        image: d.image || undefined,
+        description: description || undefined,
+        offers: d.price != null ? { '@type': 'Offer', price: String(d.price), priceCurrency: 'EUR' } : undefined,
+      }
+    : undefined
+
+  return {
+    title,
+    meta: [
+      { name: 'description', content: description || '' },
+      { property: 'og:title', content: d?.name || '' },
+      { property: 'og:description', content: description || '' },
+      { property: 'og:image', content: d?.image || '' },
+    ],
+    script: ld
+      ? [
+          {
+            type: 'application/ld+json',
+            children: JSON.stringify(ld),
+          },
+        ]
+      : [],
+  }
+})
+
 function formatPrice(p: number | undefined) {
   return typeof p === "number" ? p.toFixed(2) + " €" : String(p ?? "-");
 }
