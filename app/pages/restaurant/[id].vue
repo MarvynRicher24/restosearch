@@ -57,6 +57,8 @@
 import { ref } from "vue";
 import type { Restaurant, Dish } from '../../../types'
 
+import { apiFetch } from '~/services/api'
+
 const route = useRoute();
 const router = useRouter();
 const id = String(route.params.id || "");
@@ -79,22 +81,26 @@ const filteredDishes = computed(() => {
   return dishes.value.filter((d) => d.name.toLowerCase().includes(q));
 });
 
-const { data: restData } = await useAsyncData("restaurants", () =>
-  $fetch("/api/restaurants")
+const { data: restData, error: restError } = await useAsyncData<Restaurant[]>("restaurants", () =>
+  apiFetch<Restaurant[]>('/api/restaurants'),
+  { server: true, default: () => [] }
 );
-const { data: dishesMap } = await useAsyncData("dishesMap", () =>
-  $fetch("/api/dishes")
+const { data: dishesMap, error: dishesError } = await useAsyncData<Record<string, Dish[]>>("dishesMap", () =>
+  apiFetch<Record<string, Dish[]>>('/api/dishes'),
+  { server: true, default: () => ({}) }
 );
 
-const rests = (restData.value || []) as Restaurant[];
+const rests = (restData?.value || []) as Restaurant[];
+if (restError?.value) console.error('Failed to load restaurants', restError.value)
+if (dishesError?.value) console.error('Failed to load dishes map', dishesError.value)
 restaurant.value = rests.find((r: Restaurant) => r.id === id) ?? null;
 
 const map = (dishesMap.value || {}) as Record<string, Dish[]>;
   dishes.value = map[id] ?? [];
   // also include any custom dishes created by professionals (ownerId === restaurant id)
   try {
-    const custom = await $fetch('/api/professional/dishes_custom').catch(() => [])
-    const arr = Array.isArray(custom) ? (custom as Dish[]) : []
+    const custom = await apiFetch<Dish[]>('/api/professional/dishes_custom')
+    const arr = Array.isArray(custom) ? custom : []
     const extras = arr.filter((dd) => dd && dd.ownerId === id)
     // merge, avoiding duplicates by id
     const existingIds = new Set(dishes.value.map((x: Dish) => x.id))
@@ -102,7 +108,7 @@ const map = (dishesMap.value || {}) as Record<string, Dish[]>;
       if (!existingIds.has(e.id)) dishes.value.push(e)
     }
   } catch (e) {
-    // ignore
+    console.error('Failed to load professional custom dishes', e)
   }
 function formatPrice(p: number | undefined) {
   return typeof p === "number" ? p.toFixed(2) + " €" : String(p ?? "-");

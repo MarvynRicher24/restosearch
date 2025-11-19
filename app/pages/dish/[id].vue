@@ -71,6 +71,8 @@ import { useCart } from '../../composables/useCart'
 import { useToast } from '../../composables/useToast'
 import type { Restaurant, Dish } from '../../../types'
 
+import { apiFetch } from '~/services/api'
+
 const route = useRoute();
 const router = useRouter();
 const id = String(route.params.id || "");
@@ -82,15 +84,19 @@ const showAuthModal = ref(false)
 const { isLogged } = useAuth()
 
 // Chargement des données : restaurants + map de plats (structure: { r1: [...], r2: [...] })
-const { data: restData } = await useAsyncData("restaurants", () =>
-  $fetch("/api/restaurants")
+const { data: restData, error: restError } = await useAsyncData<Restaurant[]>("restaurants", () =>
+  apiFetch<Restaurant[]>('/api/restaurants'),
+  { server: true, default: () => [] }
 );
-const { data: dishesMapData } = await useAsyncData("dishesMap", () =>
-  $fetch("/api/dishes")
+const { data: dishesMapData, error: dishesError } = await useAsyncData<Record<string, Dish[]>>("dishesMap", () =>
+  apiFetch<Record<string, Dish[]>>('/api/dishes'),
+  { server: true, default: () => ({}) }
 );
 
-const rests = (restData.value || []) as Restaurant[];
-const dishesMap = (dishesMapData.value || {}) as Record<string, Dish[]>;
+const rests = (restData?.value || []) as Restaurant[];
+const dishesMap = (dishesMapData?.value || {}) as Record<string, Dish[]>;
+if (restError?.value) console.error('Failed to load restaurants', restError.value)
+if (dishesError?.value) console.error('Failed to load dishes map', dishesError.value)
 
 // Cherche le plat dans la map
 let found: Dish | undefined = undefined;
@@ -107,14 +113,16 @@ for (const [rid, arr] of Object.entries(dishesMap)) {
 // if not found in standard map, look into professional custom dishes (server) then localStorage
 if (!found) {
   try {
-    const custom = await $fetch('/api/professional/dishes_custom').catch(() => [])
-    const arr = Array.isArray(custom) ? (custom as Dish[]) : []
+    const custom = await apiFetch<Dish[]>('/api/professional/dishes_custom')
+    const arr = Array.isArray(custom) ? custom : []
       const f = arr.find((d) => d && d.id === id)
       if (f) {
         found = f
         foundRestaurantId = f.ownerId
       }
-  } catch (e) {}
+  } catch (e) {
+    console.error('Failed to load professional custom dishes', e)
+  }
 }
 
 if (!found) {
@@ -140,12 +148,14 @@ if (foundRestaurantId) {
   );
   // also add custom dishes from professional list to "more"
   try {
-    const custom = await $fetch('/api/professional/dishes_custom').catch(() => [])
-    const arr = Array.isArray(custom) ? (custom as Dish[]) : []
+    const custom = await apiFetch<Dish[]>('/api/professional/dishes_custom')
+    const arr = Array.isArray(custom) ? custom : []
     const extras = arr.filter((dd) => dd && dd.ownerId === foundRestaurantId && dd.id !== id)
     const existing = new Set(more.value.map((m: Dish) => m.id))
     for (const e of extras) if (!existing.has(e.id)) more.value.push(e)
-  } catch (e) {}
+  } catch (e) {
+    console.error('Failed to load professional custom dishes', e)
+  }
 }
 
 // SEO: titre, meta et JSON-LD dynamiques basés sur le plat chargé

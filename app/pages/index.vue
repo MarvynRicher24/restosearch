@@ -74,6 +74,7 @@ import { ref, computed, watch, onBeforeUnmount } from "vue";
 // Types importés depuis `types` pour un typage centralisé
 import type { Restaurant } from '../../types'
 import RestaurantCard from "~/components/RestaurantCard.vue";
+import { apiFetch } from '~/services/api'
 
 // Configuration SEO
 useHead({
@@ -101,10 +102,16 @@ const page = ref<number>(1);
 const perPage = 6;
 
 // Chargement des restaurants (API côté serveur pour éviter la résolution par le routeur)
-const { data } = await useAsyncData("restaurants", () =>
-  $fetch("/api/restaurants")
+const { data, error, refresh } = await useAsyncData<Restaurant[]>(
+  "restaurants",
+  () => apiFetch<Restaurant[]>('/api/restaurants'),
+  { server: true, default: () => [] }
 );
 restaurants.value = (data.value || []) as Restaurant[];
+if (error?.value) {
+  // log serveur/console pour faciliter le debug ; UI peut lire `filtered.length === 0`
+  console.error('Failed to load restaurants', error.value)
+}
 
 // Filtre par cuisine retiré — on conserve uniquement le tri et la recherche
 loading.value = false;
