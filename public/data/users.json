@@ -30,15 +30,15 @@
   },
   {
     "id": "p1763460333961",
-    "name": "restaurant dos",
+    "name": "bettyresto",
     "email": "pro2@hotmail.fr",
     "password": "marvyn",
     "role": "professional",
-    "address": "rue du dos",
+    "address": "route des biches",
     "postalCode": "74350",
     "city": "cruseilles",
     "createdAt": 1763460333961,
-    "description": "LA ou l'on se regale comme jamais",
-    "image": "/uploads/professional/p1763460333961-1763461430226.jpg"
+    "description": "Ici les meilleurs plats à base de biche",
+    "image": "/uploads/professional/p1763460333961-1763541443528.webp"
   }
 ]

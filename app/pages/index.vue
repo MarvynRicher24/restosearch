@@ -35,13 +35,10 @@
           </button>
         </div>
 
-        <div class="hero-meta">
+          <div class="hero-meta">
           <div>{{ filtered.length }} résultats</div>
           <div class="controls">
-            <select v-model="cuisineFilter">
-              <option value="">Toutes cuisines</option>
-              <option v-for="c in cuisines" :key="c" :value="c">{{ c }}</option>
-            </select>
+            <!-- Filtre par type de cuisine supprimé -->
 
             <select v-model="sortBy">
               <option value="relevance">Pertinence</option>
@@ -103,12 +100,10 @@ const locationQuery = ref<string>("");
 // debounced values used for filtering to avoid excessive re-evaluation while typing
 const debouncedQuery = ref<string>("");
 const debouncedLocation = ref<string>("");
-const cuisineFilter = ref<string>("");
 const sortBy = ref<"relevance" | "rating" | "name">("relevance");
 
 const restaurants = ref<Restaurant[]>([]);
 const loading = ref<boolean>(true);
-const cuisines = ref<string[]>([]);
 
 const page = ref<number>(1);
 const perPage = 6;
@@ -119,21 +114,13 @@ const { data } = await useAsyncData("restaurants", () =>
 );
 restaurants.value = (data.value || []) as Restaurant[];
 
-const setCuisines = () => {
-  const set = new Set<string>();
-  restaurants.value.forEach((r: Restaurant) => {
-    if (r.cuisine) set.add(r.cuisine);
-  });
-  cuisines.value = Array.from(set).sort();
-};
-setCuisines();
+// Filtre par cuisine retiré — on conserve uniquement le tri et la recherche
 loading.value = false;
 
 const filtered = computed<Restaurant[]>(() => {
   const q = debouncedQuery.value.trim().toLowerCase();
   const locQ = debouncedLocation.value.trim().toLowerCase();
   let out = restaurants.value.filter((r: Restaurant) => {
-    if (cuisineFilter.value && r.cuisine !== cuisineFilter.value) return false;
     // If a main query is provided, match against name, cuisine or short description
     if (q) {
       const matchMain =
@@ -185,7 +172,7 @@ watch([query, locationQuery], () => {
   }, 300)
 })
 
-watch([debouncedQuery, debouncedLocation, cuisineFilter, sortBy], () => {
+watch([debouncedQuery, debouncedLocation, sortBy], () => {
   page.value = 1;
 })
 
