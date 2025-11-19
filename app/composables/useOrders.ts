@@ -1,22 +1,6 @@
 import { ref } from 'vue'
 import { useAuth } from './useAuth'
-
-type OrderItem = {
-  id?: string
-  name?: string
-  price?: number
-  qty?: number
-  restaurant?: { id?: string; name?: string }
-}
-
-type Order = {
-  id: string
-  date: string
-  items: OrderItem[]
-  total: number
-  count: number
-  status?: string
-}
+import type { Order } from '../../types'
 
 function storageKey(email?: string) {
   if (!email) return 'resto_orders_guest'

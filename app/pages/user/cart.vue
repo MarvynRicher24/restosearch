@@ -56,9 +56,7 @@ import { useRouter } from '#app'
 import { useAuth } from '../../composables/useAuth'
 import { useCart } from '../../composables/useCart'
 import { useOrders } from '../../composables/useOrders'
-import type { Dish } from '../../../types'
-
-type CartItem = Partial<Dish> & { qty?: number; restaurant?: { id?: string; name?: string } }
+import type { Dish, CartItem } from '../../../types'
 
 const router = useRouter()
 const { user, isLogged, logout } = useAuth()

@@ -41,11 +41,11 @@ import { ref, onMounted } from 'vue'
 import { useAuth } from '../../composables/useAuth'
 import { useOrders } from '../../composables/useOrders'
 import { useRouter } from '#app'
+import type { Order } from '../../../types'
 
 const router = useRouter()
 const { user, isLogged } = useAuth()
-type OrderItem = { id?: string; name?: string; price?: number; qty?: number; restaurant?: { id?: string; name?: string } }
-type Order = { id?: string; date?: string; items: OrderItem[]; total?: number; count?: number }
+ 
 const orders = ref<Order[]>([])
 
 onMounted(() => {

@@ -62,3 +62,34 @@ export interface SearchFilters {
 export type UserWithPassword = User & { password?: string };
 
 export * from './utils'
+
+/**
+ * Cart item used across the app and stored in localStorage per user.
+ */
+export type CartItem = Partial<Dish> & {
+  qty?: number;
+  restaurant?: { id?: string; name?: string };
+};
+
+/**
+ * Item within an order.
+ */
+export type OrderItem = {
+  id?: string;
+  name?: string;
+  price?: number;
+  qty?: number;
+  restaurant?: { id?: string; name?: string };
+};
+
+/**
+ * Order record stored per user.
+ */
+export type Order = {
+  id: string;
+  date: string;
+  items: OrderItem[];
+  total: number;
+  count: number;
+  status?: string;
+};

@@ -1,13 +1,6 @@
 import { ref, computed, watch } from 'vue'
 import { useAuth } from './useAuth'
-
-type CartItem = {
-  id: string | undefined
-  name: string | undefined
-  price: number | undefined
-  restaurant?: { id?: string; name?: string }
-  qty?: number
-}
+import type { CartItem } from '../../types'
 
 const items = ref<CartItem[]>([])
 let currentKey = ''
@@ -25,7 +18,7 @@ export function useCart() {
     currentKey = key
     try {
       const raw = localStorage.getItem(key) || '[]'
-      items.value = JSON.parse(raw)
+      items.value = JSON.parse(raw) as CartItem[]
     } catch (e) {
       items.value = []
     }
