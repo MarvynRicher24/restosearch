@@ -1,0 +1,58 @@
+{
+    "seo": {
+        "homeTitle": "RestoSearch - Trouvez votre restaurant idéal",
+        "homeDescription": "Recherchez et découvrez les meilleurs restaurants près de chez vous avec filtres par cuisine et localisation.",
+        "authTitle": "Connexion - RestoSearch"
+    },
+    "home": {
+        "lead": "Le meilleur resto à portée de main",
+        "loading": "Chargement…",
+        "empty": "Aucun résultat pour « {query} »",
+        "results": "{count} résultats"
+    },
+    "search": {
+        "placeholder": {
+            "restaurant": "Rechercher votre resto",
+            "location": "Localiser votre resto"
+        },
+        "aria": {
+            "restaurantSearch": "Rechercher des restaurants",
+            "locationFilter": "Filtrer par localisation",
+            "clear": "Effacer la recherche"
+        },
+        "sort": {
+            "relevance": "Pertinence",
+            "rating": "Note décroissante",
+            "name": "Nom A→Z"
+        }
+    },
+    "pager": {
+        "prev": "Préc",
+        "next": "Suiv",
+        "page": "Page {page} / {pages}"
+    },
+    "auth": {
+        "title": "Connexion / Inscription",
+        "tab": {
+            "login": "Se connecter",
+            "register": "S'inscrire"
+        },
+        "label": {
+            "email": "Email",
+            "pseudo": "Pseudo",
+            "password": "Mot de passe"
+        },
+        "button": {
+            "login": "Se connecter",
+            "register": "S'inscrire"
+        },
+        "message": {
+            "invalid": "Email valide et mot de passe d'au moins 6 caractères requis.",
+            "incorrect": "Identifiants incorrects.",
+            "adminLogged": "Connecté en tant qu'administrateur.",
+            "professionalLogged": "Connecté en tant que professionnel.",
+            "userLogged": "Connecté en tant qu'utilisateur.",
+            "registerSuccess": "Inscription réussie (simulée)."
+        }
+    }
+}

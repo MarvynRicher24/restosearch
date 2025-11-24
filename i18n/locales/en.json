@@ -1,0 +1,58 @@
+{
+    "seo": {
+        "homeTitle": "RestoSearch - Find your ideal restaurant",
+        "homeDescription": "Search and discover the best restaurants near you with filters for cuisine and location.",
+        "authTitle": "Login - RestoSearch"
+    },
+    "home": {
+        "lead": "The best restaurant within reach",
+        "loading": "Loading…",
+        "empty": "No results for « {query} »",
+        "results": "{count} results"
+    },
+    "search": {
+        "placeholder": {
+            "restaurant": "Search for a restaurant",
+            "location": "Locate your restaurant"
+        },
+        "aria": {
+            "restaurantSearch": "Search restaurants",
+            "locationFilter": "Filter by location",
+            "clear": "Clear search"
+        },
+        "sort": {
+            "relevance": "Relevance",
+            "rating": "Highest rating",
+            "name": "Name A→Z"
+        }
+    },
+    "pager": {
+        "prev": "Prev",
+        "next": "Next",
+        "page": "Page {page} / {pages}"
+    },
+    "auth": {
+        "title": "Login / Register",
+        "tab": {
+            "login": "Login",
+            "register": "Register"
+        },
+        "label": {
+            "email": "Email",
+            "pseudo": "Username",
+            "password": "Password"
+        },
+        "button": {
+            "login": "Login",
+            "register": "Register"
+        },
+        "message": {
+            "invalid": "Valid email and password of at least 6 characters required.",
+            "incorrect": "Incorrect credentials.",
+            "adminLogged": "Logged in as administrator.",
+            "professionalLogged": "Logged in as professional.",
+            "userLogged": "Logged in as user.",
+            "registerSuccess": "Registration successful (simulated)."
+        }
+    }
+}

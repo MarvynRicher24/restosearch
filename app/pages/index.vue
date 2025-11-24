@@ -3,7 +3,7 @@
     <section class="hero container">
       <div class="hero-inner">
         <h1 class="logo"><span>resto</span><strong>search</strong></h1>
-        <p class="lead">Le meilleur resto à portée de main</p>
+        <p class="lead">{{ $t('home.lead') }}</p>
 
         <div class="search-wrap">
           <label for="restaurant-search" class="sr-only"
@@ -13,37 +13,37 @@
             id="restaurant-search"
             v-model="query"
             @input="onInput"
-            placeholder="Rechercher votre resto"
+            :placeholder="$t('search.placeholder.restaurant')"
             class="search-input"
-            aria-label="Rechercher des restaurants"
+            :aria-label="$t('search.aria.restaurantSearch')"
           />
           <input
             id="restaurant-location"
             v-model="locationQuery"
             @input="onInput"
-            placeholder="Localiser votre resto"
+            :placeholder="$t('search.placeholder.location')"
             class="search-input location"
-            aria-label="Filtrer par localisation"
+            :aria-label="$t('search.aria.locationFilter')"
           />
           <button
             v-if="query"
             @click="clear"
             class="clear-btn"
-            aria-label="Effacer la recherche"
+            :aria-label="$t('search.aria.clear')"
           >
             ✕
           </button>
         </div>
 
           <div class="hero-meta">
-          <div>{{ filtered.length }} résultats</div>
+          <div>{{ $t('home.results', { count: filtered.length }) }}</div>
           <div class="controls">
             <!-- Filtre par type de cuisine supprimé -->
 
             <select v-model="sortBy">
-              <option value="relevance">Pertinence</option>
-              <option value="rating">Note décroissante</option>
-              <option value="name">Nom A→Z</option>
+              <option value="relevance">{{ $t('search.sort.relevance') }}</option>
+              <option value="rating">{{ $t('search.sort.rating') }}</option>
+              <option value="name">{{ $t('search.sort.name') }}</option>
             </select>
           </div>
         </div>
@@ -51,9 +51,9 @@
     </section>
 
     <section class="container results-grid">
-      <div v-if="loading" class="loading">Chargement…</div>
+      <div v-if="loading" class="loading">{{ $t('home.loading') }}</div>
       <div v-else-if="filtered.length === 0" class="empty">
-        Aucun résultat pour « {{ query }} »
+        {{ $t('home.empty', { query }) }}
       </div>
 
       <div class="grid">
@@ -61,9 +61,9 @@
       </div>
 
       <div class="pager" v-if="pages > 1">
-        <button @click="prev" :disabled="page === 1">Préc</button>
-        <span>Page {{ page }} / {{ pages }}</span>
-        <button @click="next" :disabled="page === pages">Suiv</button>
+        <button @click="prev" :disabled="page === 1">{{ $t('pager.prev') }}</button>
+        <span>{{ $t('pager.page', { page: page, pages: pages }) }}</span>
+        <button @click="next" :disabled="page === pages">{{ $t('pager.next') }}</button>
       </div>
     </section>
   </div>
@@ -71,6 +71,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, onBeforeUnmount } from "vue";
+import { useI18n } from 'vue-i18n'
 // Types importés depuis `types` pour un typage centralisé
 import type { Restaurant } from '../../types'
 import RestaurantCard from "~/components/RestaurantCard.vue";
@@ -78,21 +79,26 @@ import { apiFetch } from '~/services/api'
 
 // Configuration SEO
 import useSeo from '~/composables/useSeo'
+const { t } = useI18n()
 
-useHead(() =>
-  useSeo({
-    title: 'RestoSearch - Trouvez votre restaurant idéal',
-    description:
-      'Recherchez et découvrez les meilleurs restaurants près de chez vous avec filtres par cuisine et localisation.',
-    image: '/og-image.png',
-    jsonld: {
-      '@context': 'https://schema.org',
-      '@type': 'WebSite',
-      name: 'RestoSearch',
-      url: process.client ? window.location.href : '/',
-    },
-  })
-)
+const seo = useSeo({
+  title: t('seo.homeTitle'),
+  description: t('seo.homeDescription'),
+  image: '/og-image.png',
+  jsonld: {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: 'RestoSearch',
+    url: process.client ? window.location.href : '/',
+  },
+})
+
+useHead({
+  title: seo.title,
+  meta: seo.meta,
+  link: seo.link,
+  script: seo.script,
+})
 
 const query = ref<string>("");
 const locationQuery = ref<string>("");

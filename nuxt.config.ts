@@ -1,5 +1,6 @@
 export default defineNuxtConfig({
   compatibilityDate: "2024-10-10",
+
   runtimeConfig: {
     // Variables côté serveur uniquement
     NITRO_SECRET: process.env.NITRO_SECRET || "dev-secret-change-in-production",
@@ -8,7 +9,9 @@ export default defineNuxtConfig({
       apiBase: "/api",
     },
   },
+
   css: ["~/assets/css/site.css"],
+
   app: {
     head: {
       title: "RestoSearch - Trouvez votre restaurant idéal",
@@ -23,9 +26,29 @@ export default defineNuxtConfig({
       ],
     },
   },
+
   nitro: {
     experimental: {
       wasm: true,
     },
   },
+
+  modules: ["@nuxtjs/i18n"],
+  i18n: {
+    locales: [
+      { code: 'fr', iso: 'fr-FR', file: 'fr.json', name: 'Français' },
+      { code: 'en', iso: 'en-US', file: 'en.json', name: 'English' }
+    ],
+    defaultLocale: 'fr',
+    strategy: 'prefix_except_default',
+    lazy: true,
+    langDir: 'locales/',
+    detectBrowserLanguage: {
+      useCookie: true,
+      cookieKey: 'i18n_redirected',
+      onlyOnRoot: true
+    },
+    // For advanced vue-i18n options use an `i18n.config` file or the module's recommended config patterns.
+    // Keep default `vueI18n` value (module will resolve i18n config file if provided).
+  }
 });

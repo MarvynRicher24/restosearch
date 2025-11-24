@@ -8,6 +8,10 @@
         </NuxtLink>
 
         <div class="header-actions">
+          <div class="lang-switch">
+            <NuxtLink to="/" class="lang">FR</NuxtLink>
+            <NuxtLink to="/en" class="lang">EN</NuxtLink>
+          </div>
           <template v-if="!isLogged">
             <NuxtLink to="/auth" class="btn-auth">Connexion / Inscription</NuxtLink>
           </template>
@@ -164,6 +168,9 @@ onBeforeUnmount(() => {
   align-items: center;
   gap: 12px;
 }
+.lang-switch { display:flex; gap:8px; align-items:center }
+.lang { font-size:0.85rem; padding:6px 8px; border-radius:8px; text-decoration:none; color:var(--muted); border:1px solid transparent }
+.lang:hover { background: rgba(15,23,42,0.03); border-color: rgba(15,23,42,0.04); color:var(--text) }
 .link {
   font-size: 0.95rem;
   color: var(--muted);

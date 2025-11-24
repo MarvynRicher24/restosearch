@@ -64,7 +64,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, computed, watch } from "vue";
 import { useRouter, useRoute } from '#app'
 import { useAuth } from '../../composables/useAuth'
 import { useCart } from '../../composables/useCart'
@@ -191,7 +191,23 @@ const seoInput = computed(() => {
   }
 })
 
-useHead(() => useSeo(seoInput.value))
+let seo = useSeo(seoInput.value)
+useHead({
+  title: seo.title,
+  meta: seo.meta,
+  link: seo.link,
+  script: seo.script,
+})
+
+watch(seoInput, (v) => {
+  seo = useSeo(v)
+  useHead({
+    title: seo.title,
+    meta: seo.meta,
+    link: seo.link,
+    script: seo.script,
+  })
+})
 
 function formatPrice(p: number | undefined) {
   return typeof p === "number" ? p.toFixed(2) + " €" : String(p ?? "-");

@@ -1,31 +1,32 @@
 <template>
   <div class="container">
-    <h1>Connexion / Inscription</h1>
+    <h1>{{ $t('auth.title') }}</h1>
 
     <div class="tabs">
-      <button class="tab-btn" :class="{active: mode === 'login'}" @click="mode = 'login'">Se connecter</button>
-      <button class="tab-btn" :class="{active: mode === 'register'}" @click="mode = 'register'">S'inscrire</button>
+      <button class="tab-btn" :class="{active: mode === 'login'}" @click="mode = 'login'">{{ $t('auth.tab.login') }}</button>
+      <button class="tab-btn" :class="{active: mode === 'register'}" @click="mode = 'register'">{{ $t('auth.tab.register') }}</button>
     </div>
 
     <div class="auth-card">
       <form @submit.prevent="submit">
+
       <div class="field">
-        <label>Email</label>
+        <label>{{ $t('auth.label.email') }}</label>
         <input v-model="form.email" type="email" required />
       </div>
 
       <div v-if="mode === 'register'" class="field">
-        <label>Pseudo</label>
+        <label>{{ $t('auth.label.pseudo') }}</label>
         <input v-model="form.pseudo" type="text" />
       </div>
 
       <div class="field">
-        <label>Mot de passe</label>
+        <label>{{ $t('auth.label.password') }}</label>
         <input v-model="form.password" type="password" required minlength="6" />
       </div>
 
       <div class="actions">
-        <button type="submit" class="btn btn-primary btn-lg">{{ mode === 'login' ? 'Se connecter' : "S'inscrire" }}</button>
+        <button type="submit" class="btn btn-primary btn-lg">{{ mode === 'login' ? $t('auth.button.login') : $t('auth.button.register') }}</button>
       </div>
     </form>
     </div>
@@ -37,6 +38,7 @@
 <script setup lang="ts">
 definePageMeta({ ssr: false })
 import { ref, reactive, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import useSeo from '~/composables/useSeo'
 import { useRouter } from '#app'
 import { useAuth } from '../composables/useAuth'
@@ -50,8 +52,17 @@ const form = reactive({ email: '', password: '', pseudo: '' })
 const message = ref('')
 const users = ref<UserWithPassword[]>([])
 
+// i18n
+const { t } = useI18n()
+
 // mark auth page as not indexable by search engines
-useHead(() => useSeo({ title: 'Connexion - RestoSearch', noindex: true }))
+const seo = useSeo({ title: t('seo.authTitle'), noindex: true })
+useHead({
+  title: seo.title,
+  meta: seo.meta,
+  link: seo.link,
+  script: seo.script,
+})
 
 async function loadUsers() {
   try {
@@ -92,7 +103,7 @@ async function submit() {
   const pwd = form.password || ''
 
   if (!email || pwd.length < 6) {
-    message.value = 'Email valide et mot de passe d\'au moins 6 caractères requis.'
+    message.value = t('auth.message.invalid')
     return
   }
 
@@ -104,14 +115,16 @@ async function submit() {
     if (users.value.length === 0) await loadUsers()
     const user = users.value.find((u) => (u.email || '').toLowerCase() === email && u.password === pwd)
     if (!user) {
-      message.value = 'Identifiants incorrects.'
+      message.value = t('auth.message.incorrect')
       return
     }
   const token = fakeToken()
   // centraliser la session via le composable
   // persist the full user object in session so settings can edit all fields
   setSession(user, token)
-  message.value = user.role === 'admin' ? 'Connecté en tant qu\'administrateur.' : (user.role === 'professional' ? 'Connecté en tant que professionnel.' : 'Connecté en tant qu\'utilisateur.')
+  if (user.role === 'admin') message.value = t('auth.message.adminLogged')
+  else if (user.role === 'professional') message.value = t('auth.message.professionalLogged')
+  else message.value = t('auth.message.userLogged')
   } else {
     // Inscription simulée côté client (le fichier JSON public n'est pas modifié)
     const newUser: UserWithPassword = {
@@ -126,7 +139,7 @@ async function submit() {
     const token = fakeToken()
     // save full user object in session
     setSession(newUser, token)
-    message.value = "Inscription réussie (simulée)."
+    message.value = t('auth.message.registerSuccess')
   }
 
   setTimeout(() => {

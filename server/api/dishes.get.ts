@@ -4,7 +4,7 @@ import path from "path";
 
 export default defineEventHandler(async () => {
   try {
-    const file = path.join(process.cwd(), "public", "data", "dishes.json");
+    const file = path.join(process.cwd(), "public", "data", "dishes_custom.json");
     const content = await fs.readFile(file, "utf-8");
     const data = JSON.parse(content || "{}");
     return data;
