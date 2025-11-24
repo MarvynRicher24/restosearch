@@ -1,0 +1,7 @@
+# robots.txt pour RestoSearch
+# Autorise tous les robots à indexer le site
+User-agent: *
+Disallow:
+
+# Si vous avez un sitemap, décommentez et ajustez la ligne suivante
+# Sitemap: https://votre-domaine.tld/sitemap.xml
