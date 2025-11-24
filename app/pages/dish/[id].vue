@@ -94,7 +94,19 @@ const { data: dishesMapData, error: dishesError } = await useAsyncData<Record<st
 );
 
 const rests = (restData?.value || []) as Restaurant[];
-const dishesMap = (dishesMapData?.value || {}) as Record<string, Dish[]>;
+// Normalize dishes response: API may return either a Record<string, Dish[]> map
+// or a flat Dish[] array (historic data). Normalize to a map keyed by ownerId.
+const _dishesRaw = dishesMapData?.value ?? {};
+let dishesMap: Record<string, Dish[]> = {};
+if (Array.isArray(_dishesRaw)) {
+  for (const d of _dishesRaw as Dish[]) {
+    const key = (d as any).ownerId || (d as any).restaurantId || 'unknown';
+    if (!dishesMap[key]) dishesMap[key] = [];
+    dishesMap[key].push(d);
+  }
+} else {
+  dishesMap = _dishesRaw as Record<string, Dish[]>;
+}
 if (restError?.value) console.error('Failed to load restaurants', restError.value)
 if (dishesError?.value) console.error('Failed to load dishes map', dishesError.value)
 
@@ -127,16 +139,20 @@ if (!found) {
 
 if (!found) {
   try {
-    const raw = localStorage.getItem('resto_dishes_custom') || '[]'
-    const arr = JSON.parse(raw || '[]')
-    if (Array.isArray(arr)) {
-      const f = (arr as Dish[]).find((d) => d && d.id === id)
-      if (f) {
-        found = f
-        foundRestaurantId = f.ownerId
+    if (process.client) {
+      const raw = localStorage.getItem('resto_dishes_custom') || '[]'
+      const arr = JSON.parse(raw || '[]')
+      if (Array.isArray(arr)) {
+        const f = (arr as Dish[]).find((d) => d && d.id === id)
+        if (f) {
+          found = f
+          foundRestaurantId = f.ownerId
+        }
       }
     }
-  } catch (e) {}
+  } catch (e) {
+    console.warn('Failed to read local custom dishes', e)
+  }
 }
 
 dish.value = found ?? null;

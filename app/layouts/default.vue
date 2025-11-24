@@ -75,11 +75,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, onMounted, onBeforeUnmount } from 'vue'
+import { computed, ref, onMounted, onBeforeUnmount, defineAsyncComponent } from 'vue'
 import { useRouter } from '#app'
 import { useAuth } from '../composables/useAuth'
 import { useCart } from '../composables/useCart'
-import GlobalToast from '../components/GlobalToast.vue'
+const GlobalToast = defineAsyncComponent(() => import('../components/GlobalToast.vue'))
 
 const router = useRouter()
 const { user, isLogged } = useAuth()
