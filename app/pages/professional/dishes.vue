@@ -29,7 +29,7 @@
     <!-- Confirmation modal (reuse admin style) -->
     <div v-if="showConfirm" class="modal-backdrop" @click.self="cancelDelete">
       <div class="modal" role="dialog" aria-modal="true" aria-label="Confirmer la suppression">
-        <h3>Supprimer le plat</h3>
+        <h2>Supprimer le plat</h2>
         <div class="modal-body">
           <div class="modal-icon">⚠️</div>
           <div class="modal-text">
@@ -250,7 +250,7 @@ async function doDeleteConfirmed() {
 /* modal (copied from admin/dashboard.vue) */
 .modal-backdrop { position:fixed !important; top:0 !important; left:0 !important; right:0 !important; bottom:0 !important; display:flex !important; align-items:center !important; justify-content:center !important; background:rgba(0,0,0,0.56) !important; z-index:2147483647 !important; pointer-events:auto !important; -webkit-font-smoothing:antialiased }
 .modal { background:var(--card-bg) !important; padding:28px !important; border-radius:14px !important; width:min(620px,94%) !important; box-shadow:0 40px 80px rgba(2,6,23,0.6) !important; color:#0b1220 !important; border:1px solid rgba(2,6,23,0.08) !important; font-size:1rem !important }
-.modal h3 { margin:0 0 12px 0; font-size:1.25rem; color:#071028 !important }
+.modal h2 { margin:0 0 12px 0; font-size:1.25rem; color:#071028 !important }
 .modal p { margin:8px 0; color:#334155 !important }
 .modal-actions { display:flex; gap:12px; justify-content:flex-end; margin-top:18px }
 .modal-body { display:flex; gap:14px; align-items:flex-start; margin-top:8px }

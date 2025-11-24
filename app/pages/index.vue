@@ -39,8 +39,8 @@
           <div>{{ $t('home.results', { count: filtered.length }) }}</div>
           <div class="controls">
             <!-- Filtre par type de cuisine supprimé -->
-
-            <select v-model="sortBy">
+            <label for="sort-by" class="sr-only">Trier par</label>
+            <select id="sort-by" v-model="sortBy" :aria-label="$t('search.aria.sortBy')">
               <option value="relevance">{{ $t('search.sort.relevance') }}</option>
               <option value="rating">{{ $t('search.sort.rating') }}</option>
               <option value="name">{{ $t('search.sort.name') }}</option>

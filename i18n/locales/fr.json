@@ -18,7 +18,8 @@
         "aria": {
             "restaurantSearch": "Rechercher des restaurants",
             "locationFilter": "Filtrer par localisation",
-            "clear": "Effacer la recherche"
+            "clear": "Effacer la recherche",
+            "sortBy": "Trier par"
         },
         "sort": {
             "relevance": "Pertinence",

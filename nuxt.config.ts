@@ -15,6 +15,9 @@ export default defineNuxtConfig({
   app: {
     head: {
       title: "RestoSearch - Trouvez votre restaurant idéal",
+      htmlAttrs: {
+        lang: 'fr'
+      },
       meta: [
         { charset: "utf-8" },
         { name: "viewport", content: "width=device-width, initial-scale=1" },
@@ -41,12 +44,10 @@ export default defineNuxtConfig({
     ],
     defaultLocale: 'fr',
     strategy: 'prefix_except_default',
-    lazy: true,
     langDir: 'locales/',
     detectBrowserLanguage: {
       useCookie: true,
-      cookieKey: 'i18n_redirected',
-      onlyOnRoot: true
+      cookieKey: 'i18n_redirected'
     },
     // For advanced vue-i18n options use an `i18n.config` file or the module's recommended config patterns.
     // Keep default `vueI18n` value (module will resolve i18n config file if provided).

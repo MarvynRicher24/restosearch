@@ -1,6 +1,6 @@
 :root {
-  --accent: #059669; /* darker emerald for better contrast */
-  --accent-rgb: 5,150,105;
+  --accent: #047857; /* darker emerald to meet text contrast */
+  --accent-rgb: 4,120,87;
   --bg-0: #f8fafc;
   --bg-1: linear-gradient(180deg, #f7fbff 0%, #ffffff 100%);
   --card-bg: #ffffff;

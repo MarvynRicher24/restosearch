@@ -5,7 +5,7 @@
     </div>
 
     <div class="card-body">
-      <h3 class="card-title">{{ props.restaurant.name }}</h3>
+      <h2 class="card-title">{{ props.restaurant.name }}</h2>
       <p class="muted">{{ props.restaurant.location }}</p>
       <p class="desc">{{ props.restaurant.short }}</p>
 

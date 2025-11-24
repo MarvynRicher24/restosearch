@@ -18,7 +18,8 @@
         "aria": {
             "restaurantSearch": "Search restaurants",
             "locationFilter": "Filter by location",
-            "clear": "Clear search"
+            "clear": "Clear search",
+            "sortBy": "Sort by"
         },
         "sort": {
             "relevance": "Relevance",
