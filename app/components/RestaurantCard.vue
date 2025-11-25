@@ -1,7 +1,7 @@
 <template>
   <article class="card">
     <div class="card-media">
-      <img :src="props.restaurant.image" :alt="props.restaurant.name" />
+      <img :src="props.restaurant.image" :alt="props.restaurant.name" loading="lazy" />
     </div>
 
     <div class="card-body">

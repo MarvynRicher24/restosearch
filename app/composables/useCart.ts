@@ -55,8 +55,8 @@ export function useCart() {
     const it = items.value.find(i => i.id === itemId && i.restaurant?.id === restaurantId)
     if (it) {
       it.qty = qty
-      if (it.qty && it.qty <= 0) {
-        // remove
+      // remove when qty is defined and <= 0
+      if (it.qty !== undefined && it.qty <= 0) {
         const idx = items.value.indexOf(it)
         if (idx !== -1) items.value.splice(idx, 1)
       }

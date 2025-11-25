@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use Node.js 18
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run unit tests (vitest)
+        run: npm run test --if-present
+
+      - name: Build
+        run: npm run build
+
+      - name: Serve built site for Lighthouse
+        if: success()
+        run: |
+          npx serve .output/public -l 3000 &
+          sleep 2
+
+      - name: Run Lighthouse (audit)
+        if: success()
+        uses: treosh/lighthouse-ci-action@v9
+        with:
+          urls: http://127.0.0.1:3000
+          config: |
+            ci:
+              collect:
+                numberOfRuns: 1
+              assert:
+                assertions:
+                  "categories:accessibility": ["warn", {"minScore": 0.9}]
+          uploadArtifacts: false
+        env:
+          LHCI_GITHUB_APP_TOKEN: ${{ secrets.GITHUB_TOKEN }}

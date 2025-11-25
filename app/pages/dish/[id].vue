@@ -13,7 +13,7 @@
       </div>
 
       <div class="top">
-        <img :src="dish.image" :alt="dish.name" class="hero-img" />
+        <img :src="dish.image" :alt="dish.name" class="hero-img" loading="lazy" />
         <div class="info">
           <h1>{{ dish.name }}</h1>
           <div class="d-price big">{{ formatPrice(dish.price) }}</div>
@@ -31,7 +31,7 @@
         <h2>Autres plats de {{ restaurant?.name ?? "ce restaurant" }}</h2>
         <div class="dish-grid">
           <article v-for="d in more" :key="d.id" class="dish-card">
-            <img class="dish-img" :src="d.image" :alt="d.name" />
+            <img class="dish-img" :src="d.image" :alt="d.name" loading="lazy" />
             <div class="dish-content">
               <h3 class="d-title">{{ d.name }}</h3>
               <div class="d-price">{{ formatPrice(d.price) }}</div>
@@ -94,6 +94,14 @@ const { data: dishesMapData, error: dishesError } = await useAsyncData<Record<st
 );
 
 const rests = (restData?.value || []) as Restaurant[];
+if (restError?.value) {
+  console.error('Failed to load restaurants', restError.value)
+  try { if (process.client) useToast().show('Erreur lors du chargement des restaurants', 'error') } catch(e) {}
+}
+if (dishesError?.value) {
+  console.error('Failed to load dishes map', dishesError.value)
+  try { if (process.client) useToast().show('Erreur lors du chargement des plats', 'error') } catch(e) {}
+}
 // Normalize dishes response: API may return either a Record<string, Dish[]> map
 // or a flat Dish[] array (historic data). Normalize to a map keyed by ownerId.
 const _dishesRaw = dishesMapData?.value ?? {};

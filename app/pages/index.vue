@@ -123,6 +123,13 @@ restaurants.value = (data.value || []) as Restaurant[];
 if (error?.value) {
   // log serveur/console pour faciliter le debug ; UI peut lire `filtered.length === 0`
   console.error('Failed to load restaurants', error.value)
+  try {
+    const toast = useToast()
+    // only show client-side
+    if (process.client) toast.show('Erreur lors du chargement des restaurants', 'error')
+  } catch (e) {
+    // noop if toast not available in SSR
+  }
 }
 
 // Filtre par cuisine retiré — on conserve uniquement le tri et la recherche

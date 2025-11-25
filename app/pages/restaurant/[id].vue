@@ -5,7 +5,7 @@
     <div v-if="!restaurant" class="loading">Restaurant introuvable.</div>
     <div v-else>
       <div class="top">
-        <img :src="restaurant.image" :alt="restaurant.name" class="hero-img" />
+        <img :src="restaurant.image" :alt="restaurant.name" class="hero-img" loading="lazy" />
 
         <div class="info">
           <h1>{{ restaurant.name }}</h1>
@@ -29,7 +29,7 @@
 
         <div class="dish-grid">
           <article v-for="d in filteredDishes" :key="d.id" class="dish-card">
-            <img class="dish-img" :src="d.image" :alt="d.name" />
+            <img class="dish-img" :src="d.image" :alt="d.name" loading="lazy" />
             <div class="dish-content">
               <h3 class="d-title">{{ d.name }}</h3>
               <div class="d-price">{{ formatPrice(d.price) }}</div>
@@ -92,8 +92,14 @@ const { data: dishesMap, error: dishesError } = await useAsyncData<Record<string
 );
 
 const rests = (restData?.value || []) as Restaurant[];
-if (restError?.value) console.error('Failed to load restaurants', restError.value)
-if (dishesError?.value) console.error('Failed to load dishes map', dishesError.value)
+if (restError?.value) {
+  console.error('Failed to load restaurants', restError.value)
+  try { if (process.client) useToast().show('Erreur lors du chargement du restaurant', 'error') } catch(e) {}
+}
+if (dishesError?.value) {
+  console.error('Failed to load dishes map', dishesError.value)
+  try { if (process.client) useToast().show('Erreur lors du chargement des plats', 'error') } catch(e) {}
+}
 restaurant.value = rests.find((r: Restaurant) => r.id === id) ?? null;
 
 const map = (dishesMap.value || {}) as Record<string, Dish[]>;

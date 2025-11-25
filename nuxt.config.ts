@@ -26,7 +26,12 @@ export default defineNuxtConfig({
           content:
             "Recherchez et découvrez les meilleurs restaurants près de chez vous",
         },
+        { name: 'theme-color', content: '#ffffff' }
       ],
+      link: [
+        { rel: 'manifest', href: '/manifest.json' },
+        { rel: 'icon', href: '/icons/icon-192.svg', sizes: '192x192', type: 'image/svg+xml' }
+      ]
     },
   },
 

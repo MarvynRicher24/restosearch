@@ -5,6 +5,9 @@
   "scripts": {
     "build": "nuxt build",
     "dev": "nuxt dev",
+    "test": "vitest",
+    "test:e2e": "playwright test",
+    "test:e2e:headed": "playwright test --headed",
     "build:analyze": "nuxt build --analyze",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
@@ -19,9 +22,11 @@
   },
   "devDependencies": {
     "@nuxt/test-utils": "^3.20.1",
+    "@playwright/test": "^1.56.1",
     "@types/node": "^24.7.0",
     "@vue/test-utils": "^2.4.6",
     "happy-dom": "^20.0.8",
+    "playwright": "^1.56.1",
     "playwright-core": "^1.56.1",
     "typescript": "^5.9.3",
     "vitest": "^3.2.4"
