@@ -10,9 +10,9 @@
       <p class="desc">{{ props.restaurant.short }}</p>
 
       <div class="card-footer">
-        <NuxtLink :to="`/restaurant/${props.restaurant.id}`" class="view-btn"
-          >Voir le resto</NuxtLink
-        >
+        <NuxtLink :to="`/restaurant/${props.restaurant.id}`" class="view-btn">
+          {{ props.viewLabel ?? 'Voir le resto' }}
+        </NuxtLink>
       </div>
     </div>
   </article>
@@ -21,7 +21,7 @@
 <script setup lang="ts">
 import type { Restaurant } from '../../types'
 
-const props = defineProps<{ restaurant: Restaurant }>()
+const props = defineProps<{ restaurant: Restaurant; viewLabel?: string }>()
 </script>
 
 <style scoped>

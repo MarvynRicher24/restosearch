@@ -8,7 +8,10 @@
         "lead": "Le meilleur resto à portée de main",
         "loading": "Chargement…",
         "empty": "Aucun résultat pour « {query} »",
-        "results": "{count} résultats"
+        "results": "{count} résultats",
+        "card": {
+            "view": "Voir le resto"
+        }
     },
     "search": {
         "placeholder": {
@@ -55,5 +58,8 @@
             "userLogged": "Connecté en tant qu'utilisateur.",
             "registerSuccess": "Inscription réussie (simulée)."
         }
+    },
+    "nav": {
+        "profile": "Mon profil"
     }
 }

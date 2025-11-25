@@ -57,7 +57,7 @@
       </div>
 
       <div class="grid">
-        <RestaurantCard v-for="r in paged" :key="r.id" :restaurant="r" />
+        <RestaurantCard v-for="r in paged" :key="r.id" :restaurant="r" :view-label="t('home.card.view')" />
       </div>
 
       <div class="pager" v-if="pages > 1">

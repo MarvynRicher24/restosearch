@@ -16,11 +16,11 @@
             <NuxtLink to="/auth" class="btn-auth">Connexion / Inscription</NuxtLink>
           </template>
           <template v-else>
-            <NuxtLink :to="profileRoute" class="link">Mon profil</NuxtLink>
+            <NuxtLink :to="profileRoute" class="link">{{ $t('nav.profile') }}</NuxtLink>
             <!-- Afficher le panier pour les utilisateurs standards (lien vers /user/cart) -->
             <template v-if="user?.role === 'user'">
               <div class="cart-wrapper" ref="cartRef" :class="{ 'is-open': dropdownOpen }" tabindex="0">
-                <button type="button" class="cart-trigger" @click="toggleDropdown" :aria-expanded="dropdownOpen">
+                <button type="button" class="cart-trigger" @click="toggleDropdown" :aria-expanded="dropdownOpen" aria-controls="cart-dropdown">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                     <path d="M3 3h2l.4 2M7 13h10l4-8H5.4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" />
                     <circle cx="10" cy="20" r="1" fill="currentColor" />
@@ -29,7 +29,7 @@
                   <span class="cart-trigger-label">Panier</span>
                   <span class="cart-badge">{{ count }}</span>
                 </button>
-                <div class="cart-dropdown" role="menu" aria-hidden="true">
+                <div id="cart-dropdown" ref="dropdownRef" class="cart-dropdown" role="menu" :aria-hidden="!dropdownOpen">
                   <div v-if="lastItems.length === 0" class="dropdown-empty">Aucun article</div>
                   <ul v-else class="dropdown-list">
                     <li v-for="(it, idx) in lastItems" :key="idx" class="dropdown-item">
@@ -75,7 +75,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, onMounted, onBeforeUnmount, defineAsyncComponent } from 'vue'
+import { computed, ref, onMounted, onBeforeUnmount, defineAsyncComponent, nextTick } from 'vue'
 import { useRouter } from '#app'
 import { useAuth } from '../composables/useAuth'
 import { useCart } from '../composables/useCart'
@@ -103,27 +103,28 @@ function formatPrice(p: number | undefined) {
   return typeof p === 'number' ? p.toFixed(2) + ' €' : String(p ?? '-')
 }
 
-import { nextTick } from 'vue'
-
 function toggleDropdown(e?: Event) {
   if (e?.preventDefault) e.preventDefault()
-  dropdownOpen.value = !dropdownOpen.value
-  // when opening, move focus into the dropdown; when closing, return focus to the trigger
-  if (dropdownOpen.value) {
+  // open: set open then focus first element inside
+  if (!dropdownOpen.value) {
+    dropdownOpen.value = true
     nextTick(() => {
       const first = dropdownRef.value?.querySelector<HTMLElement>('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])')
       try { first?.focus() } catch(e) {}
     })
   } else {
-    nextTick(() => {
-      const trigger = cartRef.value?.querySelector<HTMLElement>('.cart-trigger')
-      try { trigger?.focus() } catch(e) {}
-    })
+    // closing: move focus back to trigger BEFORE hiding to avoid aria-hidden on focused element
+    const trigger = cartRef.value?.querySelector<HTMLElement>('.cart-trigger')
+    try { trigger?.focus() } catch(e) {}
+    dropdownOpen.value = false
   }
 }
 
 function goToCart(e?: Event) {
   if (e?.preventDefault) e?.preventDefault()
+  // ensure focus moves before closing to avoid aria-hidden on focused element
+  const trigger = cartRef.value?.querySelector<HTMLElement>('.cart-trigger')
+  try { trigger?.focus() } catch(e) {}
   dropdownOpen.value = false
   router.push('/user/cart')
 }
@@ -133,12 +134,10 @@ function onDocClick(e: MouseEvent) {
   if (!cartRef.value) return
   if (!cartRef.value.contains(target)) {
     if (dropdownOpen.value) {
+      // move focus to trigger first, then close
+      const trigger = cartRef.value?.querySelector<HTMLElement>('.cart-trigger')
+      try { trigger?.focus() } catch(e) {}
       dropdownOpen.value = false
-      // return focus to trigger when closing due to outside click
-      nextTick(() => {
-        const trigger = cartRef.value?.querySelector<HTMLElement>('.cart-trigger')
-        try { trigger?.focus() } catch(e) {}
-      })
     }
   }
 }
