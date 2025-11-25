@@ -29,16 +29,16 @@
     "description": "Meilleur restaurant dans lequel se régaler."
   },
   {
-    "id": "p1763460333961",
-    "name": "bettyresto",
+    "id": "p1764086825560",
+    "name": "restorator",
     "email": "pro2@hotmail.fr",
     "password": "marvyn",
     "role": "professional",
-    "address": "route des biches",
-    "postalCode": "74350",
-    "city": "cruseilles",
-    "createdAt": 1763460333961,
-    "description": "Ici les meilleurs plats vous dégusterez.",
-    "image": "/uploads/professional/p1763460333961-1763541443528.webp"
+    "address": "rue du resto",
+    "postalCode": "18000",
+    "city": "bernes",
+    "createdAt": 1764086825560,
+    "description": "Meilleur resto de votre région !",
+    "image": "/uploads/professional/p1764086825560-1764086870037.webp"
   }
 ]

@@ -89,11 +89,7 @@ async function submit() {
     // try to persist server-side via API
     try {
       const res = await $fetch('/api/admin/createPro', { method: 'POST', body: newUser })
-      // server persisted - also update localStorage for client-side fallbacks
-      const raw = localStorage.getItem('resto_users_custom') || '[]'
-      const arr = JSON.parse(raw || '[]')
-      arr.push(newUser)
-      localStorage.setItem('resto_users_custom', JSON.stringify(arr))
+      // server persisted — do NOT duplicate in localStorage (dashboard reads from server + localStorage)
       message.value = 'Professionnel créé (serveur).'
       setTimeout(() => router.push('/admin/dashboard'), 600)
       return
