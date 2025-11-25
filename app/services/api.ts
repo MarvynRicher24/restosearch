@@ -1,5 +1,15 @@
 // app/services/api.ts
-// Minimal API client utility. Keep only the low-level fetch wrapper here.
+// Minimal API client utility. Centralise les appels réseau et fournit des erreurs enrichies.
+import type { H3Error } from '../../types/utils'
+
+/**
+ * Erreur enrichie renvoyée par `apiFetch` pour faciliter le handling côté appelant.
+ */
+export type ApiFetchError = Error & {
+  status?: number
+  body?: string
+}
+
 /**
  * Wrapper autour de $fetch / fetch pour centraliser les appels API.
  * - Utilise Nuxt `$fetch` si disponible, sinon `fetch` global.
@@ -9,18 +19,17 @@ async function apiFetch<T = unknown>(path: string, opts?: RequestInit): Promise<
   // prefer Nuxt's $fetch when available (declared in types/global.d.ts), fallback to global fetch
   try {
     if (typeof (globalThis as any).$fetch === 'function') {
-      // Nuxt $fetch throws for non-2xx responses, keep that behaviour
       const result = await (globalThis as any).$fetch(path, opts)
       return result as T
     }
   } catch (e) {
-    // if $fetch failed, fallthrough to native fetch to capture response body when possible
+    // if $fetch failed (network or runtime), fallthrough to native fetch to capture response body when possible
   }
 
   const res = await fetch(path, opts)
   if (!res.ok) {
     const text = await res.text().catch(() => '')
-    const err: any = new Error(`Request failed ${res.status} ${res.statusText}`)
+    const err: ApiFetchError = new Error(`Request failed ${res.status} ${res.statusText}`) as ApiFetchError
     err.status = res.status
     err.body = text
     throw err
