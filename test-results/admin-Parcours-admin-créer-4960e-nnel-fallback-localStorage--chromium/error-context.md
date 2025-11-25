@@ -1,29 +1,46 @@
 # Page snapshot
 
 ```yaml
-- generic [active] [ref=e1]:
-  - generic [ref=e4]:
-    - heading "404" [level=1] [ref=e5]
-    - 'heading "Page not found: /admin" [level=2] [ref=e6]'
-    - paragraph [ref=e7]: "Page not found: /admin"
-    - link "Go back home" [ref=e9] [cursor=pointer]:
-      - /url: /
-  - generic:
-    - img
-  - generic:
-    - generic:
-      - generic:
-        - button "Go to parent" [disabled]
-        - button "Open in editor"
-        - button "Close"
-  - generic:
-    - generic:
-      - generic:
-        - generic:
-          - button "Toggle Nuxt DevTools":
-            - img
-          - generic "Page load time":
-            - generic: "-"
-          - button "Toggle Component Inspector":
-            - img
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - generic [ref=e5]:
+      - link "resto search" [ref=e6] [cursor=pointer]:
+        - /url: /
+        - generic [ref=e7]: resto
+        - generic [ref=e8]: search
+      - generic [ref=e9]:
+        - generic [ref=e10]:
+          - link "FR" [ref=e11] [cursor=pointer]:
+            - /url: /
+          - link "EN" [ref=e12] [cursor=pointer]:
+            - /url: /en
+        - link "Connexion / Inscription" [ref=e13] [cursor=pointer]:
+          - /url: /auth
+  - main [ref=e14]:
+    - generic [ref=e15]:
+      - generic [ref=e16]:
+        - button "← Mon profil" [ref=e17] [cursor=pointer]
+        - heading "Créer un restaurateur" [level=1] [ref=e18]
+      - generic [ref=e20]:
+        - generic [ref=e21]:
+          - generic [ref=e22]: Nom du restaurant
+          - textbox "Nom du restaurant" [ref=e23]
+        - generic [ref=e24]:
+          - generic [ref=e25]: Adresse
+          - textbox "Adresse" [ref=e26]
+        - generic [ref=e27]:
+          - generic [ref=e28]: Code postal
+          - textbox "Code postal" [ref=e29]
+        - generic [ref=e30]:
+          - generic [ref=e31]: Ville
+          - textbox "Ville" [ref=e32]
+        - generic [ref=e33]:
+          - generic [ref=e34]: Email
+          - textbox "Email" [ref=e35]
+        - generic [ref=e36]:
+          - generic [ref=e37]: Mot de passe
+          - textbox "Mot de passe" [ref=e38]
+        - button "Créer le compte" [ref=e40]
+  - contentinfo [ref=e41]:
+    - generic [ref=e42]: © 2025 — restosearch
 ```

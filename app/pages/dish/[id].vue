@@ -250,6 +250,7 @@ function addToCart() {
       id: dish.value?.id,
       name: dish.value?.name,
       price: dish.value?.price,
+      image: dish.value?.image,
       restaurant: { id: restaurant.value?.id, name: restaurant.value?.name }
     })
   // petit feedback utilisateur via toast
@@ -268,6 +269,7 @@ function goToAuth() {
         id: dish.value?.id,
         name: dish.value?.name,
         price: dish.value?.price,
+        image: dish.value?.image,
         restaurant: { id: restaurant.value?.id, name: restaurant.value?.name }
       },
       returnPath: process.client ? window.location.pathname : '/'

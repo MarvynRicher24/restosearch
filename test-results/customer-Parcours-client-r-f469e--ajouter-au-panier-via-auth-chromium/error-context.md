@@ -1,72 +1,52 @@
 # Page snapshot
 
 ```yaml
-- generic [active] [ref=e1]:
-  - generic [ref=e3]:
-    - banner [ref=e4]:
-      - generic [ref=e5]:
-        - link "resto search" [ref=e6] [cursor=pointer]:
-          - /url: /
-          - generic [ref=e7]: resto
-          - generic [ref=e8]: search
-        - generic [ref=e9]:
-          - generic [ref=e10]:
-            - link "FR" [ref=e11] [cursor=pointer]:
-              - /url: /
-            - link "EN" [ref=e12] [cursor=pointer]:
-              - /url: /en
-          - link "Connexion / Inscription" [ref=e13] [cursor=pointer]:
-            - /url: /auth
-    - main [ref=e14]:
-      - generic [ref=e15]:
-        - button "← Retour" [ref=e16] [cursor=pointer]
-        - generic [ref=e17]:
-          - generic [ref=e18]:
-            - img "marvynesto" [ref=e19]
-            - generic [ref=e20]:
-              - heading "marvynesto" [level=1] [ref=e21]
-              - paragraph [ref=e22]: Annecy, rue du cook
-              - paragraph [ref=e23]: Meilleur restaurant dans lequel se régaler.
-          - generic [ref=e24]:
-            - heading "Plats du restaurant" [level=2] [ref=e25]
-            - textbox "Rechercher un plat" [ref=e27]:
-              - /placeholder: Rechercher un plat...
-            - generic [ref=e28]:
-              - article [ref=e29]:
-                - img "maragriat au poulet" [ref=e30]
-                - generic [ref=e31]:
-                  - heading "maragriat au poulet" [level=3] [ref=e32]
-                  - generic [ref=e33]: 25.00 €
-                - link "Voir le plat maragriat au poulet" [ref=e35] [cursor=pointer]:
-                  - /url: /dish/d1763479706874
-                  - text: Voir le plat
-              - article [ref=e36]:
-                - img "bourguignon oriental" [ref=e37]
-                - generic [ref=e38]:
-                  - heading "bourguignon oriental" [level=3] [ref=e39]
-                  - generic [ref=e40]: 34.00 €
-                - link "Voir le plat bourguignon oriental" [ref=e42] [cursor=pointer]:
-                  - /url: /dish/d1763539064723
-                  - text: Voir le plat
-    - contentinfo [ref=e43]:
-      - generic [ref=e44]: © 2025 — restosearch
-  - generic:
-    - img
-  - generic:
-    - generic:
-      - generic:
-        - button "Go to parent" [disabled]
-        - button "Open in editor"
-        - button "Close"
-  - generic:
-    - generic:
-      - generic:
-        - generic:
-          - button "Toggle Nuxt DevTools":
-            - img
-          - generic "Page load time":
-            - generic: "50"
-            - generic: ms
-          - button "Toggle Component Inspector":
-            - img
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - generic [ref=e5]:
+      - link "resto search" [ref=e6] [cursor=pointer]:
+        - /url: /
+        - generic [ref=e7]: resto
+        - generic [ref=e8]: search
+      - generic [ref=e9]:
+        - generic [ref=e10]:
+          - link "FR" [ref=e11] [cursor=pointer]:
+            - /url: /
+          - link "EN" [ref=e12] [cursor=pointer]:
+            - /url: /en
+        - link "Connexion / Inscription" [ref=e13] [cursor=pointer]:
+          - /url: /auth
+  - main [ref=e14]:
+    - generic [ref=e15]:
+      - button "← Retour" [ref=e16] [cursor=pointer]
+      - generic [ref=e17]:
+        - generic [ref=e18]:
+          - img "marvynesto" [ref=e19]
+          - generic [ref=e20]:
+            - heading "marvynesto" [level=1] [ref=e21]
+            - paragraph [ref=e22]: Annecy, rue du cook
+            - paragraph [ref=e23]: Meilleur restaurant dans lequel se régaler.
+        - generic [ref=e24]:
+          - heading "Plats du restaurant" [level=2] [ref=e25]
+          - textbox "Rechercher un plat" [ref=e27]:
+            - /placeholder: Rechercher un plat...
+          - generic [ref=e28]:
+            - article [ref=e29]:
+              - img "maragriat au poulet" [ref=e30]
+              - generic [ref=e31]:
+                - heading "maragriat au poulet" [level=3] [ref=e32]
+                - generic [ref=e33]: 25.00 €
+              - link "Voir le plat maragriat au poulet" [ref=e35] [cursor=pointer]:
+                - /url: /dish/d1763479706874
+                - text: Voir le plat
+            - article [ref=e36]:
+              - img "bourguignon oriental" [ref=e37]
+              - generic [ref=e38]:
+                - heading "bourguignon oriental" [level=3] [ref=e39]
+                - generic [ref=e40]: 34.00 €
+              - link "Voir le plat bourguignon oriental" [ref=e42] [cursor=pointer]:
+                - /url: /dish/d1763539064723
+                - text: Voir le plat
+  - contentinfo [ref=e43]:
+    - generic [ref=e44]: © 2025 — restosearch
 ```

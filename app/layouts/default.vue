@@ -81,12 +81,13 @@ import { useAuth } from '../composables/useAuth'
 import { useCart } from '../composables/useCart'
 const GlobalToast = defineAsyncComponent(() => import('../components/GlobalToast.vue'))
 
-const router = useRouter()
-const { user, isLogged } = useAuth()
-const { items, count, total } = useCart()
+  const router = useRouter()
+  const { user, isLogged } = useAuth()
+  const { items, count, total } = useCart()
 
 const dropdownOpen = ref(false)
 const cartRef = ref<HTMLElement | null>(null)
+const dropdownRef = ref<HTMLElement | null>(null)
 
 const lastItems = computed(() => (items.value || []).slice(-3).reverse())
 
@@ -102,13 +103,27 @@ function formatPrice(p: number | undefined) {
   return typeof p === 'number' ? p.toFixed(2) + ' €' : String(p ?? '-')
 }
 
+import { nextTick } from 'vue'
+
 function toggleDropdown(e?: Event) {
   if (e?.preventDefault) e.preventDefault()
   dropdownOpen.value = !dropdownOpen.value
+  // when opening, move focus into the dropdown; when closing, return focus to the trigger
+  if (dropdownOpen.value) {
+    nextTick(() => {
+      const first = dropdownRef.value?.querySelector<HTMLElement>('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])')
+      try { first?.focus() } catch(e) {}
+    })
+  } else {
+    nextTick(() => {
+      const trigger = cartRef.value?.querySelector<HTMLElement>('.cart-trigger')
+      try { trigger?.focus() } catch(e) {}
+    })
+  }
 }
 
 function goToCart(e?: Event) {
-  if (e?.preventDefault) e.preventDefault()
+  if (e?.preventDefault) e?.preventDefault()
   dropdownOpen.value = false
   router.push('/user/cart')
 }
@@ -117,7 +132,14 @@ function onDocClick(e: MouseEvent) {
   const target = e.target as Node
   if (!cartRef.value) return
   if (!cartRef.value.contains(target)) {
-    dropdownOpen.value = false
+    if (dropdownOpen.value) {
+      dropdownOpen.value = false
+      // return focus to trigger when closing due to outside click
+      nextTick(() => {
+        const trigger = cartRef.value?.querySelector<HTMLElement>('.cart-trigger')
+        try { trigger?.focus() } catch(e) {}
+      })
+    }
   }
 }
 
