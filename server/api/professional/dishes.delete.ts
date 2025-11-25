@@ -1,5 +1,6 @@
 import fs from 'fs/promises'
 import path from 'path'
+import type { Dish } from '../../../types'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -8,16 +9,16 @@ export default defineEventHandler(async (event) => {
     if (!id) throw createError({ statusCode: 400, statusMessage: 'id requis' })
 
     const file = path.join(process.cwd(), 'public', 'data', 'dishes_custom.json')
-    let arr: any[] = []
+    let arr: Dish[] = []
     try {
       const content = await fs.readFile(file, 'utf-8')
-      arr = JSON.parse(content || '[]')
-      if (!Array.isArray(arr)) arr = []
+      const parsed = JSON.parse(content || '[]')
+      arr = Array.isArray(parsed) ? (parsed as Dish[]) : []
     } catch (e) {
       arr = []
     }
 
-    const remaining = arr.filter((d: any) => d.id !== id)
+    const remaining = arr.filter((d: Dish) => d.id !== id)
     await fs.writeFile(file, JSON.stringify(remaining, null, 2), 'utf-8')
 
     return { ok: true }

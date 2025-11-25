@@ -1,6 +1,7 @@
 // server/api/restaurants.get.ts
 import fs from "fs/promises";
 import path from "path";
+import type { UserWithPassword, Restaurant } from '../../types'
 
 export default defineEventHandler(async () => {
   // Prefer to expose professional users (created by admin) as "restaurants" on the index.
@@ -10,19 +11,19 @@ export default defineEventHandler(async () => {
     const raw = await fs.readFile(usersFile, "utf-8");
     const users = JSON.parse(raw || "[]")
     const pros = Array.isArray(users)
-      ? users.filter((u: any) => u && u.role === 'professional')
+      ? (users as UserWithPassword[]).filter((u) => u && u.role === 'professional')
       : []
 
-    const mapped = pros.map((u: any) => {
-      const name = u.restaurant || u.restaurantName || u.name || ''
+    const mapped: Restaurant[] = pros.map((u) => {
+      const name = (u as any).restaurant || (u as any).restaurantName || u.name || ''
       const image = u.image || ''
-      const locationParts = []
+      const locationParts: string[] = []
       if (u.city) locationParts.push(u.city)
       if (u.address) locationParts.push(u.address)
       const location = locationParts.join(', ')
-      const cuisine = u.cuisine || ''
-      const rating = u.rating || undefined
-      const short = u.description || u.bio || u.short || ''
+      const cuisine = (u as any).cuisine || ''
+      const rating = (u as any).rating || undefined
+      const short = (u as any).description || u.bio || (u as any).short || ''
       return {
         id: u.id || u.email || name,
         name,

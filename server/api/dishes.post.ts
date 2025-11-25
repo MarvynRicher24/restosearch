@@ -5,7 +5,7 @@ import { parseJsonArray, isH3Error } from '../../types'
 
 export default defineEventHandler(async (event) => {
   try {
-    const body = await readBody(event)
+    const body = (await readBody(event)) as Partial<Dish> | null
     if (!body || !body.id) {
       throw createError({ statusCode: 400, statusMessage: 'Données invalides' })
     }
@@ -20,11 +20,11 @@ export default defineEventHandler(async (event) => {
     }
 
     // prevent duplicate id
-    const exists = arr.find((d: Dish) => d.id === (body as any).id)
+    const exists = arr.find((d: Dish) => d.id === body.id)
     if (exists) {
       throw createError({ statusCode: 409, statusMessage: 'Plat déjà existant' })
     }
-    const newDish = body as Dish
+    const newDish: Dish = body as Dish
     arr.push(newDish)
     await fs.writeFile(file, JSON.stringify(arr, null, 2), 'utf-8')
 
